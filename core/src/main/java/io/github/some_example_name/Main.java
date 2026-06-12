@@ -18,6 +18,10 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.ScreenUtils;
+import java.util.Random;
+import com.badlogic.gdx.InputProcessor;
+
+import java.util.ArrayList;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main implements ApplicationListener {
@@ -28,8 +32,13 @@ public class Main implements ApplicationListener {
     ModelBuilder modelBuilder;
     ModelBatch modelBatch;
     Model model;
+    Model model1;
     Vector3 camPosition;
     Vector3 camDirection;
+    ArrayList<Model> models;
+    ArrayList<ModelInstance> modelInstances;
+    Random random;
+    int amount;
 
     @Override
     public void create() {
@@ -37,19 +46,35 @@ public class Main implements ApplicationListener {
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camPosition = new Vector3(10,10,10);
         camera.position.set(camPosition);
+        random = new Random();
 
-        camera.lookAt(0,0,0);
+        camera.lookAt(0,10,0);
         camDirection = camera.direction.cpy().nor();
         camera.near = 1f;
-        camera.far = 300f;
+        camera.far = 600f;
         camera.update();
-        vertical = new Vector3(0,0,1);
+        vertical = new Vector3(0,1,0);
         boolean locked = false;
         modelBuilder = new ModelBuilder();
+        models = new ArrayList<Model>();
+        modelInstances = new ArrayList<ModelInstance>();
+        amount= 1000;
+
+        for(int i =0; i<amount; i++) {
+            float randombetween2 = random.nextFloat(0, 2);
+            models.add(modelBuilder.createSphere(randombetween2, randombetween2, randombetween2, 12, 12, new Material(ColorAttribute.createDiffuse(Color.WHITE)), Usage.Position | Usage.Normal));
+
+        }
+
         model = modelBuilder.createBox(5f, 5f, 5f,
             new Material(ColorAttribute.createDiffuse(Color.GREEN)),
             Usage.Position | Usage.Normal);
-        sphereInstance = new ModelInstance(model);
+        model1 = modelBuilder.createSphere(5f,5f,5f,12,12,new Material(ColorAttribute.createDiffuse(Color.GREEN)),Usage.Position | Usage.Normal);
+        sphereInstance = new ModelInstance(model1);
+        for(int i =0; i<amount; i++) {
+            modelInstances.add(new ModelInstance(models.get(i)));
+            modelInstances.get(i).transform.setToTranslation(random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000));
+        }
 
     }
 
@@ -70,14 +95,21 @@ public class Main implements ApplicationListener {
             camPosition.sub(camDirection.cpy().nor().scl(speed));
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            camPosition.add(camDirection.cpy().nor().crs(0,0,1).scl(speed));
+            camPosition.add(camDirection.cpy().nor().crs(0,1,0).scl(speed));
         }
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            camPosition.sub(camDirection.cpy().nor().crs(0,0,1).scl(speed));
+            camPosition.sub(camDirection.cpy().nor().crs(0,1,0).scl(speed));
         }
+        //if(Gdx.input.getInputProcessor().scrolled(1,0))
+        Gdx.input.setCursorCatched(locked);
         if(locked){
-            camDirection.rotate(camDirection.cpy().nor().crs(0,0,1), sensitivity * (Gdx.input.getY() - ((float) Gdx.graphics.getHeight() /2)));
-            camDirection.rotate(vertical, sensitivity * (Gdx.input.getX() - ((float) Gdx.graphics.getWidth() /2)));
+
+            camDirection.rotate(camDirection.cpy().nor().crs(vertical), -sensitivity * (Gdx.input.getY() - ((float) Gdx.graphics.getHeight() /2)));
+            camera.update();
+            if(Math.pow(camDirection.y,2) < 0.931225) {
+                camDirection.rotate(vertical, -sensitivity * (Gdx.input.getX() - ((float) Gdx.graphics.getWidth() / 2)));
+            }
+            camera.update();
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         }
 
@@ -90,14 +122,19 @@ public class Main implements ApplicationListener {
     public void render() {
         ScreenUtils.clear(0f,0f,0f,0f);
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
+            Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
             locked = !locked;
+
         }
-        doCameraMovement(camera,1,1,locked);
+        doCameraMovement(camera,1,0.5f,locked);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
         camera.update();
-        modelBatch.render(sphereInstance);
+        for(int i =0; i<amount; i++) {
+            modelBatch.render(modelInstances.get(i));
+        }
+
         modelBatch.end();
     }
 
