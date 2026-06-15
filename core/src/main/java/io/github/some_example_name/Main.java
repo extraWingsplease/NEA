@@ -50,15 +50,15 @@ public class Main implements ApplicationListener {
 
         camera.lookAt(0,10,0);
         camDirection = camera.direction.cpy().nor();
-        camera.near = 1f;
-        camera.far = 600f;
+        camera.near = 0.1f;
+        camera.far = 1000f;
         camera.update();
         vertical = new Vector3(0,1,0);
         boolean locked = false;
         modelBuilder = new ModelBuilder();
         models = new ArrayList<Model>();
         modelInstances = new ArrayList<ModelInstance>();
-        amount= 1000;
+        amount= 10000;
 
         for(int i =0; i<amount; i++) {
             float randombetween2 = random.nextFloat(0, 2);
@@ -99,6 +99,12 @@ public class Main implements ApplicationListener {
         }
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
             camPosition.sub(camDirection.cpy().nor().crs(0,1,0).scl(speed));
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+            camPosition.add(vertical.cpy().scl(speed));
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
+            camPosition.sub(vertical.cpy().scl(speed));
         }
         //if(Gdx.input.getInputProcessor().scrolled(1,0))
         Gdx.input.setCursorCatched(locked);
