@@ -51,7 +51,7 @@ public class Main implements ApplicationListener {
         camera.lookAt(0,10,0);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
-        camera.far = 1000f;
+        camera.far = 10000f;
         camera.update();
         vertical = new Vector3(0,1,0);
         boolean locked = false;
@@ -73,7 +73,7 @@ public class Main implements ApplicationListener {
         sphereInstance = new ModelInstance(model1);
         for(int i =0; i<amount; i++) {
             modelInstances.add(new ModelInstance(models.get(i)));
-            modelInstances.get(i).transform.setToTranslation(random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000));
+            modelInstances.get(i).transform.setToTranslation(random.nextFloat(-100, 100),random.nextFloat(-100, 100),random.nextFloat(-100, 100));
         }
 
     }
@@ -109,11 +109,16 @@ public class Main implements ApplicationListener {
         //if(Gdx.input.getInputProcessor().scrolled(1,0))
         Gdx.input.setCursorCatched(locked);
         if(locked){
-
             camDirection.rotate(camDirection.cpy().nor().crs(vertical), -sensitivity * (Gdx.input.getY() - ((float) Gdx.graphics.getHeight() /2)));
             camera.update();
             if(Math.pow(camDirection.y,2) < 0.931225) {
                 camDirection.rotate(vertical, -sensitivity * (Gdx.input.getX() - ((float) Gdx.graphics.getWidth() / 2)));
+            }
+            else if(camDirection.y > 0.965){
+                camDirection.y = 0.965f;
+            }
+            else if(camDirection.y < -0.965){
+                camDirection.y = -0.965f;
             }
             camera.update();
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
