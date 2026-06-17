@@ -18,8 +18,13 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.util.EventListener;
 import java.util.Random;
 import com.badlogic.gdx.InputProcessor;
+import java.util.EventListener.*;
 
 import java.util.ArrayList;
 
@@ -39,6 +44,7 @@ public class Main implements ApplicationListener {
     ArrayList<ModelInstance> modelInstances;
     Random random;
     int amount;
+    MouseWheelListener mouse;
 
     @Override
     public void create() {
@@ -47,6 +53,7 @@ public class Main implements ApplicationListener {
         camPosition = new Vector3(10,10,10);
         camera.position.set(camPosition);
         random = new Random();
+
 
         camera.lookAt(0,10,0);
         camDirection = camera.direction.cpy().nor();
@@ -62,7 +69,7 @@ public class Main implements ApplicationListener {
 
         for(int i =0; i<amount; i++) {
             float randombetween2 = random.nextFloat(0, 2);
-            models.add(modelBuilder.createSphere(randombetween2, randombetween2, randombetween2, 12, 12, new Material(ColorAttribute.createDiffuse(Color.WHITE)), Usage.Position | Usage.Normal));
+            models.add(modelBuilder.createSphere(randombetween2, randombetween2, randombetween2, 20, 20, new Material(ColorAttribute.createDiffuse(Color.WHITE)), Usage.Position | Usage.Normal));
 
         }
 
@@ -73,7 +80,7 @@ public class Main implements ApplicationListener {
         sphereInstance = new ModelInstance(model1);
         for(int i =0; i<amount; i++) {
             modelInstances.add(new ModelInstance(models.get(i)));
-            modelInstances.get(i).transform.setToTranslation(random.nextFloat(-100, 100),random.nextFloat(-100, 100),random.nextFloat(-100, 100));
+            modelInstances.get(i).transform.setToTranslation(random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000));
         }
 
     }
@@ -106,7 +113,9 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
             camPosition.sub(vertical.cpy().scl(speed));
         }
-        //if(Gdx.input.getInputProcessor().scrolled(1,0))
+
+
+
         Gdx.input.setCursorCatched(locked);
         if(locked){
             camDirection.rotate(camDirection.cpy().nor().crs(vertical), -sensitivity * (Gdx.input.getY() - ((float) Gdx.graphics.getHeight() /2)));
