@@ -25,6 +25,7 @@ import java.util.EventListener;
 import java.util.Random;
 import com.badlogic.gdx.InputProcessor;
 import java.util.EventListener.*;
+import com.badlogic.gdx.InputAdapter;
 
 import java.util.ArrayList;
 
@@ -44,7 +45,8 @@ public class Main implements ApplicationListener {
     ArrayList<ModelInstance> modelInstances;
     Random random;
     int amount;
-    MouseWheelListener mouse;
+    mouseScroll mouse;
+
 
     @Override
     public void create() {
@@ -52,9 +54,8 @@ public class Main implements ApplicationListener {
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camPosition = new Vector3(10,10,10);
         camera.position.set(camPosition);
+        mouse = new mouseScroll();
         random = new Random();
-
-
         camera.lookAt(0,10,0);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
@@ -66,6 +67,10 @@ public class Main implements ApplicationListener {
         models = new ArrayList<Model>();
         modelInstances = new ArrayList<ModelInstance>();
         amount= 10000;
+        Gdx.input.setInputProcessor(mouse);
+        System.out.println();
+
+
 
         for(int i =0; i<amount; i++) {
             float randombetween2 = random.nextFloat(0, 2);
@@ -102,51 +107,53 @@ public class Main implements ApplicationListener {
             camPosition.sub(camDirection.cpy().nor().scl(speed));
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            camPosition.add(camDirection.cpy().nor().crs(0,1,0).scl(speed));
+            camPosition.add(camDirection.cpy().crs(0,1,0).nor().scl(speed));
         }
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            camPosition.sub(camDirection.cpy().nor().crs(0,1,0).scl(speed));
+            camPosition.sub(camDirection.cpy().crs(0,1,0).nor().scl(speed));
         }
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-            camPosition.add(vertical.cpy().scl(speed));
+            camPosition.add(vertical.cpy().nor().scl(speed));
         }
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
-            camPosition.sub(vertical.cpy().scl(speed));
+            camPosition.sub(vertical.cpy().nor().scl(speed));
         }
 
 
 
         Gdx.input.setCursorCatched(locked);
         if(locked){
-            camDirection.rotate(camDirection.cpy().nor().crs(vertical), -sensitivity * (Gdx.input.getY() - ((float) Gdx.graphics.getHeight() /2)));
-            camera.update();
-            if(Math.pow(camDirection.y,2) < 0.931225) {
-                camDirection.rotate(vertical, -sensitivity * (Gdx.input.getX() - ((float) Gdx.graphics.getWidth() / 2)));
-            }
-            else if(camDirection.y > 0.965){
-                camDirection.y = 0.965f;
+            if(camDirection.y > 0.965){
+                camDirection.set(camDirection.x, 0.965f,camDirection.z);
             }
             else if(camDirection.y < -0.965){
-                camDirection.y = -0.965f;
+                camDirection.set(camDirection.x, -0.965f,camDirection.z);
             }
+            if(camDirection.y < 0.965 && camDirection.y > -0.965) {
+                camDirection.rotate(vertical, -sensitivity * (Gdx.input.getX() - ((float) Gdx.graphics.getWidth() / 2)));
+            }
+            camDirection.rotate(camDirection.cpy().nor().crs(vertical), -sensitivity * (Gdx.input.getY() - ((float) Gdx.graphics.getHeight() /2)));
             camera.update();
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         }
-
         camera.position.set(camPosition);
         camera.direction.set(camDirection);
-        System.out.println(camera.position);
+        //System.out.println(camera.direction);
 ;
     }
     @Override
     public void render() {
+        if(mouse.currentSpeedLevel > mouse.scrollMax){
+            mouse.currentSpeedLevel --;
+        }
+        System.out.println(mouse.currentSpeedLevel);
         ScreenUtils.clear(0f,0f,0f,0f);
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
             locked = !locked;
 
         }
-        doCameraMovement(camera,1,0.5f,locked);
+        doCameraMovement(camera,1,0.01f,locked);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
