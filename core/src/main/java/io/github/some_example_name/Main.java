@@ -46,6 +46,7 @@ public class Main implements ApplicationListener {
     Random random;
     int amount;
     mouseScroll mouse;
+    float trueSpeed;
 
 
     @Override
@@ -67,6 +68,7 @@ public class Main implements ApplicationListener {
         models = new ArrayList<Model>();
         modelInstances = new ArrayList<ModelInstance>();
         amount= 10000;
+        trueSpeed = 1;
         Gdx.input.setInputProcessor(mouse);
         System.out.println();
 
@@ -143,8 +145,12 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
+        int currentspeed = mouse.currentSpeedLevel;
         if(mouse.currentSpeedLevel > mouse.scrollMax){
-            mouse.currentSpeedLevel --;
+            mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10);
+        }
+        if(mouse.currentSpeedLevel < -mouse.scrollMax){
+            mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10)+1;
         }
         System.out.println(mouse.currentSpeedLevel);
         ScreenUtils.clear(0f,0f,0f,0f);
@@ -153,7 +159,8 @@ public class Main implements ApplicationListener {
             locked = !locked;
 
         }
-        doCameraMovement(camera,1,0.01f,locked);
+        float apparentspeed = (float) (trueSpeed * Math.exp(0.35*mouse.currentSpeedLevel));
+        doCameraMovement(camera,apparentspeed,0.1f,locked);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
