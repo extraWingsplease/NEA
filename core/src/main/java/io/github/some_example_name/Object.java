@@ -36,12 +36,17 @@ public class Object {
     Vector3 velocity;
     Vector3 resultantForce;
     Vector3 acceleration;
-    public object(float radius, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ){
+    Model model;
+    ModelInstance instance;
+    public Object(float radius, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder){
         mass = (float) (3.14159 * Math.pow(radius, 3) * density * 0.75);
         location = new Vector3(startX, startY, startZ);
         velocity = new Vector3(startVX, startVY, startVZ);
         resultantForce = new Vector3(0, 0,0);
         acceleration = new Vector3(0, 0,0);
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,new Material(ColorAttribute.createDiffuse(Color.WHITE)),Usage.Position | Usage.Normal);
+        instance = new ModelInstance(model);
+        instance.transform.setToTranslation(location);
     }
     public float getRadius() {return radius;}
     public void setRadius(float radius) {this.radius = radius;}
@@ -68,10 +73,17 @@ public class Object {
     public void resetForce(){resultantForce.scl(0);}
 
     public void advance(){
-        acceleration = resultantforce.scl(1/mass);
+        acceleration = resultantForce.scl(1/mass);
         velocity.add(acceleration);
         location.add(velocity);
         resetForce();
+        System.out.println(location);
+
+    }
+
+    public void draw(ModelBatch modelBatch){
+        instance.transform.setToTranslation(location);
+        modelBatch.render(instance);
     }
 
 }

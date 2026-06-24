@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.EventListener;
+import java.util.List;
 import java.util.Random;
 import com.badlogic.gdx.InputProcessor;
 import java.util.EventListener.*;
@@ -38,15 +39,19 @@ public class Main implements ApplicationListener {
     ModelBuilder modelBuilder;
     ModelBatch modelBatch;
     Model model;
-    Model model1;
     Vector3 camPosition;
     Vector3 camDirection;
     ArrayList<Model> models;
     ArrayList<ModelInstance> modelInstances;
     Random random;
-    int amount;
     mouseScroll mouse;
     float trueSpeed;
+    Object testball;
+    Object testball2;
+    Object testball3;
+    ArrayList<Object> objects;
+    ForceHandler forces;
+    //int amount;
 
 
     @Override
@@ -57,7 +62,7 @@ public class Main implements ApplicationListener {
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
-        camera.lookAt(0,10,0);
+        camera.lookAt(150,10,0);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
         camera.far = 10000f;
@@ -67,28 +72,30 @@ public class Main implements ApplicationListener {
         modelBuilder = new ModelBuilder();
         models = new ArrayList<Model>();
         modelInstances = new ArrayList<ModelInstance>();
-        amount= 10000;
         trueSpeed = 1;
         Gdx.input.setInputProcessor(mouse);
-        System.out.println();
+        objects = new ArrayList<Object>();
+        forces = new ForceHandler();
 
 
-
+        testball = new Object(10, 100, 200,0,50, 0,0,0,modelBuilder);
+        testball2 = new Object(10, 100, 100,0,-50, 0,0,0,modelBuilder);
+        testball3 = new Object(10, 100, 100,50,0, 0,0,0,modelBuilder);
+        objects.add(testball);
+        objects.add(testball2);
+        objects.add(testball3);
+        //amount= 10000;
+        /*
         for(int i =0; i<amount; i++) {
             float randombetween2 = random.nextFloat(0, 2);
             models.add(modelBuilder.createSphere(randombetween2, randombetween2, randombetween2, 20, 20, new Material(ColorAttribute.createDiffuse(Color.WHITE)), Usage.Position | Usage.Normal));
-
         }
 
-        model = modelBuilder.createBox(5f, 5f, 5f,
-            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
-            Usage.Position | Usage.Normal);
-        model1 = modelBuilder.createSphere(5f,5f,5f,12,12,new Material(ColorAttribute.createDiffuse(Color.GREEN)),Usage.Position | Usage.Normal);
-        sphereInstance = new ModelInstance(model1);
         for(int i =0; i<amount; i++) {
             modelInstances.add(new ModelInstance(models.get(i)));
             modelInstances.get(i).transform.setToTranslation(random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000),random.nextFloat(-1000, 1000));
         }
+        */
 
     }
 
@@ -145,6 +152,8 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
+        forces.gravity(objects);
+        testball.advance();
         int currentspeed = mouse.currentSpeedLevel;
         if(mouse.currentSpeedLevel > mouse.scrollMax){
             mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10);
@@ -157,7 +166,6 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
             locked = !locked;
-
         }
         float apparentspeed = (float) (trueSpeed * Math.exp(0.35*mouse.currentSpeedLevel));
         doCameraMovement(camera,apparentspeed,0.1f,locked);
@@ -165,8 +173,14 @@ public class Main implements ApplicationListener {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
         camera.update();
+        /*
         for(int i =0; i<amount; i++) {
             modelBatch.render(modelInstances.get(i));
+        }
+
+        */
+        for(int i =0; i<objects.size(); i++) {
+            objects.get(i).draw(modelBatch);
         }
 
         modelBatch.end();

@@ -56,7 +56,7 @@ public class mouseScroll extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean scrolled(float v, float v1) {
-        scrollMax= 10;
+        scrollMax= 15;
         currentSpeedLevel -= v1;
 
         //System.out.println(currentSpeedLevel);
