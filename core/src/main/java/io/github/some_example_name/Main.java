@@ -78,9 +78,9 @@ public class Main implements ApplicationListener {
         forces = new ForceHandler();
 
 
-        testball = new Object(10, 100, 200,0,50, 0,0,0,modelBuilder);
-        testball2 = new Object(10, 100, 100,0,-50, 0,0,0,modelBuilder);
-        testball3 = new Object(10, 100, 100,50,0, 0,0,0,modelBuilder);
+        testball = new Object(10, 100, 200,0,50, 0,0f,0,modelBuilder);
+        testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder);
+        testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
@@ -152,8 +152,11 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
+        forces.contact(objects);
         forces.gravity(objects);
-        testball.advance();
+        for(int i =0; i<objects.size(); i++) {
+            objects.get(i).advance();
+        }
         int currentspeed = mouse.currentSpeedLevel;
         if(mouse.currentSpeedLevel > mouse.scrollMax){
             mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10);
@@ -161,7 +164,7 @@ public class Main implements ApplicationListener {
         if(mouse.currentSpeedLevel < -mouse.scrollMax){
             mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10)+1;
         }
-        System.out.println(mouse.currentSpeedLevel);
+        //System.out.println(mouse.currentSpeedLevel);
         ScreenUtils.clear(0f,0f,0f,0f);
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);

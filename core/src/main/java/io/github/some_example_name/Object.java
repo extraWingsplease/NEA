@@ -38,7 +38,7 @@ public class Object {
     Vector3 acceleration;
     Model model;
     ModelInstance instance;
-    public Object(float radius, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder){
+    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder){
         mass = (float) (3.14159 * Math.pow(radius, 3) * density * 0.75);
         location = new Vector3(startX, startY, startZ);
         velocity = new Vector3(startVX, startVY, startVZ);
@@ -47,6 +47,8 @@ public class Object {
         model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,new Material(ColorAttribute.createDiffuse(Color.WHITE)),Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
+        radius = rad;
+
     }
     public float getRadius() {return radius;}
     public void setRadius(float radius) {this.radius = radius;}
@@ -77,8 +79,7 @@ public class Object {
         velocity.add(acceleration);
         location.add(velocity);
         resetForce();
-        System.out.println(location);
-
+        //System.out.println(location);
     }
 
     public void draw(ModelBatch modelBatch){
