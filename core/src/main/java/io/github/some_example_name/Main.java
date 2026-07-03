@@ -152,11 +152,18 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
-        forces.contact(objects);
-        forces.gravity(objects);
-        for(int i =0; i<objects.size(); i++) {
-            objects.get(i).advance();
-        }
+
+
+            for(int i =0; i<objects.size(); i++) {
+                objects.get(i).advance();
+                forces.contact(objects);
+                forces.gravity(objects);
+            }
+
+
+
+
+
         int currentspeed = mouse.currentSpeedLevel;
         if(mouse.currentSpeedLevel > mouse.scrollMax){
             mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10);
