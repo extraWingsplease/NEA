@@ -54,6 +54,8 @@ public class Object {
     public float getRadius() {return radius;}
     public void setRadius(float radius) {this.radius = radius;}
 
+    public float getVolume() {return (float) Math.pow(radius,3) * (4/3f)* Math.pi;}
+
     public float getMass() {return mass;}
     public void setMass(float mass) {this.mass = mass;}
 

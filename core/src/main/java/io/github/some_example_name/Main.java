@@ -148,17 +148,17 @@ public class Main implements ApplicationListener {
         camera.position.set(camPosition);
         camera.direction.set(camDirection);
         //System.out.println(camera.direction);
-;
+        ;
     }
     @Override
     public void render() {
 
 
-            for(int i =0; i<objects.size(); i++) {
-                objects.get(i).advance();
-                forces.contact(objects);
-                forces.gravity(objects);
-            }
+        for(int i =0; i<objects.size(); i++) {
+            objects.get(i).advance();
+            forces.contact(objects);
+            forces.gravity(objects);
+        }
 
 
 
@@ -178,7 +178,7 @@ public class Main implements ApplicationListener {
             locked = !locked;
         }
         float apparentspeed = (float) (trueSpeed * Math.exp(0.35*mouse.currentSpeedLevel));
-        doCameraMovement(camera,apparentspeed,0.1f,locked);
+        doCameraMovement(camera,apparentspeed,0.15f,locked);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
