@@ -39,6 +39,7 @@ public class ForceHandler {
     }
 
     public void contact(ArrayList<Object> objects) {
+        Breakdown breakdown = new Breakdown(objects);
         for (int actor = 0; actor < objects.size(); actor++) {
             for (int victim = 0; victim < objects.size(); victim++) {
                 if (victim != actor) {
@@ -59,13 +60,14 @@ public class ForceHandler {
                         //actingForce = distance.cpy().nor().scl((float) (Math.cos(Math.atan(distance.y / distance.x))));
                         //if (Math.cos(Math.atan(distance.y/distance.x))>0 && 0<(objects.get(victim).getVelocity().x*objects.get(victim).getVelocity().y*actingForce.x*actingForce.y)){
                         //if(velocityDifference.len() >= gravitationAcceleration.len()) {
-                            System.out.println("yes");
+                            //System.out.println("yes");
                             actingForce = actingForce.scl(((float) velocityDifference.dot(distance.cpy().nor()) * objects.get(victim).getMass()) / 10f).add(gravitation.cpy().scl(-1));;
                         //}
-
+                        breakdown.deconstruct(victim,velocityDifference,objects.get(actor).getMass()/objects.get(victim).getMass());
                         objects.get(victim).newForce(actingForce);
                         objects.get(actor).newForce(actingForce.scl(-1));
-                        System.out.println(actingForce);
+
+                        //System.out.println(actingForce);
                         /*
                         if (objects.get(victim).getMass() < objects.get(actor).getMass()) {
                             objects.get(victim).setVelocity(objects.get(victim).getVelocity().scl(0.97f));

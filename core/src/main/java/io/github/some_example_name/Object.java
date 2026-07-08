@@ -38,7 +38,9 @@ public class Object {
     Vector3 acceleration;
     Model model;
     ModelInstance instance;
-    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder){
+    Boolean breakaway;
+    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw){
+        breakaway = breakw;
         radius = (float) rad;
         mass = (float) (3.14159 * Math.pow(radius, 3) * density * 0.75);
         location = new Vector3(startX, startY, startZ);
@@ -54,7 +56,7 @@ public class Object {
     public float getRadius() {return radius;}
     public void setRadius(float radius) {this.radius = radius;}
 
-    public float getVolume() {return (float) Math.pow(radius,3) * (4/3f)* Math.pi;}
+    public float getVolume() {return (float) ((float) Math.pow(radius,3) * (4/3f)* Math.PI);}
 
     public float getMass() {return mass;}
     public void setMass(float mass) {this.mass = mass;}
@@ -76,6 +78,9 @@ public class Object {
 
     public void newForce(Vector3 incomingForce){resultantForce.add(incomingForce);}
     public void resetForce(){resultantForce.scl(0);}
+
+    public Boolean getBreakaway() {return breakaway;}
+    public void setBreakaway(Boolean breakaway) {this.breakaway = breakaway;}
 
     public void advance(){
         acceleration = resultantForce.scl(1/mass);

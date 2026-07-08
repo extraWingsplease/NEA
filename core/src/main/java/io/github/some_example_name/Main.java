@@ -78,9 +78,9 @@ public class Main implements ApplicationListener {
         forces = new ForceHandler();
 
 
-        testball = new Object(10, 100, 200,0,50, 0,0f,0,modelBuilder);
-        testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder);
-        testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder);
+        testball = new Object(10, 100, 200,0,50, 0,0f,0,modelBuilder, false);
+        testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false);
+        testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
