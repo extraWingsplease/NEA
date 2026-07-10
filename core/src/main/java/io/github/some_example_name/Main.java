@@ -42,6 +42,7 @@ public class Main implements ApplicationListener {
     Vector3 camPosition;
     Vector3 camDirection;
     ArrayList<Model> models;
+
     ArrayList<ModelInstance> modelInstances;
     Random random;
     mouseScroll mouse;
@@ -49,9 +50,11 @@ public class Main implements ApplicationListener {
     Object testball;
     Object testball2;
     Object testball3;
+    ArrayList<Object> testballs;
     ArrayList<Object> objects;
     ForceHandler forces;
     //int amount;
+    Breakdown breakdown;
 
 
     @Override
@@ -62,6 +65,7 @@ public class Main implements ApplicationListener {
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
+        breakdown = new Breakdown();
         camera.lookAt(150,10,0);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
@@ -75,15 +79,22 @@ public class Main implements ApplicationListener {
         trueSpeed = 1;
         Gdx.input.setInputProcessor(mouse);
         objects = new ArrayList<Object>();
+        testballs = new ArrayList<Object>();
         forces = new ForceHandler();
 
 
-        testball = new Object(10, 100, 200,0,50, 0,0f,0,modelBuilder, false);
+        testball = new Object(10, 100, 200,0,50, 0,0f,-1,modelBuilder, false);
         testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false);
         testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false);
         objects.add(testball);
-        objects.add(testball2);
-        objects.add(testball3);
+        //objects.add(testball2);
+        //objects.add(testball3);
+
+
+        for(int i =0; i<breakdown.getCoordinates().length; i++) {
+
+            objects.add(new Object(0.2f, 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, 0, 0, 0, modelBuilder, true));
+        }
         //amount= 10000;
         /*
         for(int i =0; i<amount; i++) {
@@ -127,6 +138,11 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
             camPosition.sub(vertical.cpy().nor().scl(speed));
         }
+        if(Gdx.input.isKeyPressed(Input.Keys.U)){
+            System.out.println(camDirection);
+        }
+
+
 
 
 
@@ -152,13 +168,16 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
+        forces.refreshArray(objects);
+        //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
 
+            for (int i = 0; i < objects.size(); i++) {
+                objects.get(i).advance();
+                //forces.contact(objects);
 
-        for(int i =0; i<objects.size(); i++) {
-            objects.get(i).advance();
-            forces.contact(objects);
-            forces.gravity(objects);
-        }
+                forces.gravity(objects);
+            }
+        //}
 
 
 
@@ -184,11 +203,13 @@ public class Main implements ApplicationListener {
         modelBatch.begin(camera);
         camera.update();
         /*
-        for(int i =0; i<amount; i++) {
+        for(int i =0; i<breakdown.getCoordinates().length; i++) {
             modelBatch.render(modelInstances.get(i));
         }
 
-        */
+         */
+
+
         for(int i =0; i<objects.size(); i++) {
             objects.get(i).draw(modelBatch);
         }

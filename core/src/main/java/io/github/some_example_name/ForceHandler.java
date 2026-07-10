@@ -9,29 +9,42 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.*;
 
 public class ForceHandler {
+    Breakdown breakdown;
+    ArrayList<Object> noFakeObjects;
     public ForceHandler(){
-
+        //breakdown = new Breakdown();
+        noFakeObjects = new ArrayList<Object>();
+    }
+    public void refreshArray(ArrayList<Object> objects){
+        noFakeObjects.clear();
+        for(int i = 0; i < objects.size(); i++){
+            if(!objects.get(i).getBreakaway()) {
+                noFakeObjects.add(objects.get(i));
+            }
+        }
     }
     public void gravity(ArrayList<Object> objects){
-        for(int actor=0; actor<objects.size(); actor++){
+        ArrayList<Object> nofakeobjects = noFakeObjects;
+        for(int actor=0; actor<nofakeobjects.size(); actor++){
             for(int victim=0; victim<objects.size(); victim++){
-                if( victim != actor && objects.get(actor).getMass() > 0.01 * objects.get(actor).getMass()) {
+                if( victim != actor && nofakeobjects.get(actor).getMass() > 0.01 * nofakeobjects.get(actor).getMass()) {
                     //System.out.println(objects.get(actor).getX());
                     Vector3 vicLoc = objects.get(victim).getLocation();
-                    Vector3 actLoc = objects.get(actor).getLocation();
+                    Vector3 actLoc = nofakeobjects.get(actor).getLocation();
                     Vector3 distance = new Vector3(vicLoc.x - actLoc.x,vicLoc.y-actLoc.y,vicLoc.z - actLoc.z);
                     float magnitude = distance.len();
                     //System.out.println("distance from " +victim + " to " + actor + ": " + distance + magnitude);
                     //System.out.println(distance.nor().scl((float) (objects.get(actor).getMass() / Math.pow(magnitude, 2))));
 
                     if (magnitude!=0) {
-                        Vector3 gravitation = distance.nor().scl((float) (-0.1 *(objects.get(actor).getMass() / Math.pow(magnitude, 2))));
+                        Vector3 gravitation = distance.nor().scl((float) (-0.0000006743 *(nofakeobjects.get(actor).getMass() * objects.get(victim).getMass()) / Math.pow(magnitude, 2)));
                         objects.get(victim).newForce(gravitation);
-                        objects.get(actor).newForce(gravitation.scl(-1));
+                        nofakeobjects.get(actor).newForce(gravitation.scl(-1));
                     }
                 }
             }
@@ -39,7 +52,7 @@ public class ForceHandler {
     }
 
     public void contact(ArrayList<Object> objects) {
-        Breakdown breakdown = new Breakdown(objects);
+
         for (int actor = 0; actor < objects.size(); actor++) {
             for (int victim = 0; victim < objects.size(); victim++) {
                 if (victim != actor) {
@@ -63,7 +76,7 @@ public class ForceHandler {
                             //System.out.println("yes");
                             actingForce = actingForce.scl(((float) velocityDifference.dot(distance.cpy().nor()) * objects.get(victim).getMass()) / 10f).add(gravitation.cpy().scl(-1));;
                         //}
-                        breakdown.deconstruct(victim,velocityDifference,objects.get(actor).getMass()/objects.get(victim).getMass());
+                        //breakdown.deconstruct(victim,velocityDifference,objects.get(actor).getMass()/objects.get(victim).getMass());
                         objects.get(victim).newForce(actingForce);
                         objects.get(actor).newForce(actingForce.scl(-1));
 
