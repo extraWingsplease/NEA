@@ -55,6 +55,7 @@ public class Main implements ApplicationListener {
     ForceHandler forces;
     //int amount;
     Breakdown breakdown;
+    ChunkHandler chunkz;
 
 
     @Override
@@ -81,9 +82,10 @@ public class Main implements ApplicationListener {
         objects = new ArrayList<Object>();
         testballs = new ArrayList<Object>();
         forces = new ForceHandler();
+        chunkz = new ChunkHandler(3);
 
 
-        testball = new Object(10, 100, 200,0,50, 0,0f,-1,modelBuilder, false);
+        testball = new Object(10, 200, 200,0,50, 0,0f,0,modelBuilder, false);
         testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false);
         testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false);
         objects.add(testball);
@@ -171,12 +173,27 @@ public class Main implements ApplicationListener {
         forces.refreshArray(objects);
         //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
 
-            for (int i = 0; i < objects.size(); i++) {
-                objects.get(i).advance();
-                //forces.contact(objects);
+        for (Object object : objects) {
+            object.advance();
 
-                forces.gravity(objects);
-            }
+
+
+
+
+        }
+        /*
+        chunkz.clear();
+        for(Object object : objects){
+            chunkz.positionOnGrid(object);
+        }
+
+        for(Object object : objects){
+            ArrayList<Object> collisionobj = chunkz.potentialColliders(object);
+            forces.contact(collisionobj);
+        }
+        */
+        forces.contact(objects);
+        forces.gravity(objects);
         //}
 
 

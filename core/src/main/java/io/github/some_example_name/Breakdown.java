@@ -11,7 +11,7 @@ public class Breakdown {
     boolean done = false;
     int amount;
     public Breakdown(){
-        amount = 2000;
+        amount = 4000;
         if(!done){
             coordinates = new Vector3[amount];
             int index = 0;
