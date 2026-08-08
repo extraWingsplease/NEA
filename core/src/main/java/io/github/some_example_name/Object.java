@@ -39,7 +39,8 @@ public class Object {
     Model model;
     ModelInstance instance;
     Boolean breakaway;
-    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw){
+    Boolean collision;
+    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw, Boolean merge){
         breakaway = breakw;
         radius = (float) rad;
         mass = (float) (3.14159 * Math.pow(radius, 3) * density * 0.75);
@@ -50,6 +51,7 @@ public class Object {
         model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,new Material(ColorAttribute.createDiffuse(Color.WHITE)),Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
+        collision = !merge;
 
 
     }
@@ -81,6 +83,9 @@ public class Object {
 
     public Boolean getBreakaway() {return breakaway;}
     public void setBreakaway(Boolean breakaway) {this.breakaway = breakaway;}
+
+    public Boolean getCollision() {return collision;}
+    public void setCollision(Boolean collision) {this.collision = collision;}
 
     public void advance(){
         acceleration = resultantForce.scl(1/mass);

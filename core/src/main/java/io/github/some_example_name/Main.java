@@ -66,8 +66,8 @@ public class Main implements ApplicationListener {
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
-        breakdown = new Breakdown(camPosition);
-        camera.lookAt(150,10,0);
+        breakdown = new Breakdown(new Vector3(100,10,10));
+        camera.lookAt(100,10,10);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
         camera.far = 10000f;
@@ -85,9 +85,9 @@ public class Main implements ApplicationListener {
         chunkz = new ChunkHandler(3);
 
 
-        testball = new Object(10, 200, 50,0,10, -0.1f,0,0,modelBuilder, false);
-        testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false);
-        testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false);
+        testball = new Object(10, 200, 50,-10,10, 0.1f,0,0,modelBuilder, false,false);
+        testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false,false);
+        testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false,false);
         objects.add(testball);
         //objects.add(testball2);
         //objects.add(testball3);
@@ -95,7 +95,8 @@ public class Main implements ApplicationListener {
 
         for(int i =0; i<breakdown.getCoordinates().length; i++) {
 
-            objects.add(new Object(0.2f, 100, breakdown.getCoordinates()[i].x/5, breakdown.getCoordinates()[i].y/5, breakdown.getCoordinates()[i].z/5, 0, 0, 0, modelBuilder, true));
+            //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
+            objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, 0f, 0f, 0f, modelBuilder, true,false));
         }
 
         //amount= 10000;

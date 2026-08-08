@@ -21,7 +21,7 @@ public class Breakdown {
                     for (int j = (int) Math.ceil(-sideAmount/2); j <= (int) Math.floor(sideAmount/2)-1; j++) {
                         for (int k = (int) Math.ceil(-sideAmount/2); k <= (int) Math.floor(sideAmount/2)-1; k++) {
                             if (index < amount) {
-                                coordinates[index] = new Vector3((i + ((float) (j + (j % 2)) / 2))+centre.x, (float) (k * (Math.pow(2, 0.5f) / Math.pow(3, 0.5f)))+centre.y, (float) (((3 * j) + (j)) / Math.pow(12, 0.5f))+centre.z);
+                                coordinates[index] = new Vector3((i + ((float) (j + (j % 2)) / 2))/5+centre.x, (float) (k * (Math.pow(2, 0.5f) / Math.pow(3, 0.5f)))/5+centre.y, (float) (((3 * j) + (j)) / Math.pow(12, 0.5f))/5+centre.z);
                                 //System.out.println(coordinates[index]);
                                 index++;
                                 System.out.println("index " + index + ": "+i +", "+ j +", "+ k);

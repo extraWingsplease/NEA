@@ -31,21 +31,21 @@ public class ForceHandler {
     public void gravity(ArrayList<Object> objects){
         ArrayList<Object> nofakeobjects = noFakeObjects;
         for(int actor=0; actor<nofakeobjects.size(); actor++){
-            for(int victim=actor; victim<objects.size(); victim++){
-                if( victim != actor) {
-                    //System.out.println(objects.get(actor).getX());
-                    Vector3 vicLoc = objects.get(victim).getLocation();
-                    Vector3 actLoc = nofakeobjects.get(actor).getLocation();
-                    Vector3 distance = new Vector3(vicLoc.x - actLoc.x,vicLoc.y-actLoc.y,vicLoc.z - actLoc.z);
-                    float magnitude = distance.len();
-                    //System.out.println("distance from " +victim + " to " + actor + ": " + distance + magnitude);
-                    //System.out.println(distance.nor().scl((float) (objects.get(actor).getMass() / Math.pow(magnitude, 2))));
+        Object a = nofakeobjects.get(actor);
+        for(int victim=actor+1; victim<objects.size(); victim++){
+            Object v = objects.get(victim);
+                //System.out.println(objects.get(actor).getX());
+                Vector3 vicLoc = v.getLocation();
+                Vector3 actLoc = a.getLocation();
+                Vector3 distance = new Vector3(vicLoc.x - actLoc.x,vicLoc.y-actLoc.y,vicLoc.z - actLoc.z);
+                float magnitude = distance.len();
+                //System.out.println("distance from " +victim + " to " + actor + ": " + distance + magnitude);
+                //System.out.println(distance.nor().scl((float) (objects.get(actor).getMass() / Math.pow(magnitude, 2))));
 
-                    if (magnitude!=0) {
-                        Vector3 gravitation = distance.nor().scl((float) (-0.0000006743 *(nofakeobjects.get(actor).getMass() * objects.get(victim).getMass()) / Math.pow(magnitude, 2)));
-                        objects.get(victim).newForce(gravitation);
-                        nofakeobjects.get(actor).newForce(gravitation.scl(-1));
-                    }
+                if (magnitude!=0) {
+                    Vector3 gravitation = distance.nor().scl((float) (-0.0000006743 * (a.getMass() * v.getMass()) / Math.pow(magnitude, 2)));
+                    v.newForce(gravitation);
+                    a.newForce(gravitation.scl(-1));
                 }
             }
         }
@@ -111,19 +111,26 @@ public class ForceHandler {
                 Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
                 float magnitude = distance.len();
                 float radii = v.getRadius() + a.getRadius();
-                if (Math.pow(magnitude,2) <= Math.pow(radii,2)){
+                if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision){
                     Vector3 normal = distance.cpy().nor();
                     Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
                     float velocityAlongNormal = relativeVelocity.dot(normal);
                         float massA = a.getMass();
                         float massV = v.getMass();
 
-                        float impulseScalar = -(1.999f) * velocityAlongNormal;
+                        float impulseScalar = -(1.99f) * velocityAlongNormal;
                         impulseScalar *= 1/(1 / massA + 1 / massV);
                         Vector3 impulse = normal.cpy().scl(impulseScalar);
 
                         a.getVelocity().add(impulse.cpy().scl(1 / massA));
                         v.getVelocity().sub(impulse.cpy().scl(1 / massV));
+                        float overlap = radii - magnitude;
+                        float allowance = 0.01f;
+
+                        Vector3 correction = normal.cpy().scl(Math.max(overlap - allowance, 0.0f) / (1 / massA + 1 / massV));
+
+                        a.getLocation().sub(correction.cpy().scl(1 / massA));
+                        v.getLocation().add(correction.cpy().scl(1 / massV));
                 }
             }
         }
