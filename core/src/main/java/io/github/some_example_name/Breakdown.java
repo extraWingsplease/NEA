@@ -10,18 +10,22 @@ public class Breakdown {
     Vector3[] coordinates;
     boolean done = false;
     int amount;
-    public Breakdown(){
-        amount = 4000;
+    Vector3 centre;
+    public Breakdown(Vector3 centre){
+        amount = 1728;
         if(!done){
             coordinates = new Vector3[amount];
             int index = 0;
-                for (int i = 0; i <= Math.ceil(Math.pow(amount,1/3f)); i++) {
-                    for (int j = 0; j <= Math.ceil(Math.pow(amount,1/3f)); j++) {
-                        for (int k = 0; k <= Math.ceil(Math.pow(amount,1/3f)); k++) {
+                float sideAmount = (float) Math.pow(amount,1/3f);
+                for (int i = (int) Math.ceil(-sideAmount/2); i <= (int) Math.floor(sideAmount/2)-1; i++) {
+                    for (int j = (int) Math.ceil(-sideAmount/2); j <= (int) Math.floor(sideAmount/2)-1; j++) {
+                        for (int k = (int) Math.ceil(-sideAmount/2); k <= (int) Math.floor(sideAmount/2)-1; k++) {
                             if (index < amount) {
-                                coordinates[index] = new Vector3((i + ((float) (j + (j % 2)) / 2)), (float) (k * (Math.pow(2, 0.5f) / Math.pow(3, 0.5f))), (float) (((3 * j) + (j)) / Math.pow(12, 0.5f)));
-                                System.out.println(coordinates[index]);
+                                coordinates[index] = new Vector3((i + ((float) (j + (j % 2)) / 2))+centre.x, (float) (k * (Math.pow(2, 0.5f) / Math.pow(3, 0.5f)))+centre.y, (float) (((3 * j) + (j)) / Math.pow(12, 0.5f))+centre.z);
+                                //System.out.println(coordinates[index]);
                                 index++;
+                                System.out.println("index " + index + ": "+i +", "+ j +", "+ k);
+
                             }
                         }
                     }

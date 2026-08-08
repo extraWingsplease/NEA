@@ -102,67 +102,32 @@ public class ForceHandler {
     }
 
 
-                             */
-                            public void contact(ArrayList<Object> objects) {
-                                // 1. Classical O(N^2) pair-wise loop
-                                for (int actor = 0; actor < objects.size(); actor++) {
-                                    Object a = objects.get(actor);
+     */
+    public void contact(ArrayList<Object> objects) {
+        for (int actor = 0; actor < objects.size(); actor++) {
+            Object a = objects.get(actor);
+            for (int victim = actor + 1; victim < objects.size(); victim++) {
+                Object v = objects.get(victim);
+                Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
+                float magnitude = distance.len();
+                float radii = v.getRadius() + a.getRadius();
+                if (Math.pow(magnitude,2) <= Math.pow(radii,2)){
+                    Vector3 normal = distance.cpy().nor();
+                    Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
+                    float velocityAlongNormal = relativeVelocity.dot(normal);
+                        float massA = a.getMass();
+                        float massV = v.getMass();
 
-                                    // Start victim at actor + 1 to automatically avoid victim == actor
-                                    // and avoid double-checking pairs (a vs b, then b vs a)
-                                    for (int victim = actor + 1; victim < objects.size(); victim++) {
-                                        Object v = objects.get(victim);
+                        float impulseScalar = -(1.999f) * velocityAlongNormal;
+                        impulseScalar *= 1/(1 / massA + 1 / massV);
+                        Vector3 impulse = normal.cpy().scl(impulseScalar);
 
-                                        // 2. Calculate distance vector from actor to victim
-                                        Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
-                                        float magnitude = distance.len();
-                                        float radii = v.getRadius() + a.getRadius();
-
-                                        // Check for collision overlap
-                                        if (magnitude <= radii && magnitude > 0) {
-
-                                            // Normal vector pointing from actor to victim
-                                            Vector3 normal = distance.cpy().nor();
-
-                                            // Relative velocity (Actor relative to Victim)
-                                            Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
-
-                                            // Velocity along the normal vector
-                                            float velocityAlongNormal = relativeVelocity.dot(normal);
-
-                                            // Do not resolve if velocities are already separating
-                                            if (velocityAlongNormal < 0) {
-
-                                                // Coefficient of Restitution (1.0 = perfectly elastic, 0.0 = sticky plastic)
-                                                float restitution = 0f;
-
-                                                // Calculate impulse scalar using reduced mass
-                                                float massA = a.getMass();
-                                                float massV = v.getMass();
-
-                                                float impulseScalar = -(1 + restitution) * velocityAlongNormal;
-                                                impulseScalar /= (1 / massA + 1 / massV);
-
-                                                // Apply impulse vector to change velocities instantly
-                                                Vector3 impulse = normal.cpy().scl(impulseScalar);
-
-                                                a.getVelocity().add(impulse.cpy().scl(1 / massA));
-                                                v.getVelocity().sub(impulse.cpy().scl(1 / massV));
-
-                                                // 3. Positional Correction (Prevents objects sinking/sticking together)
-                                                float overlap = radii - magnitude;
-                                                float percent = 0.8f; // Penetration allowance percentage
-                                                float slop = 0.01f;   // Penetration allowance buffer
-
-                                                Vector3 correction = normal.cpy().scl(Math.max(overlap - slop, 0.0f) / (1 / massA + 1 / massV) * percent);
-
-                                                a.getLocation().sub(correction.cpy().scl(1 / massA));
-                                                v.getLocation().add(correction.cpy().scl(1 / massV));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        a.getVelocity().add(impulse.cpy().scl(1 / massA));
+                        v.getVelocity().sub(impulse.cpy().scl(1 / massV));
+                }
+            }
+        }
+    }
 
 
 }
