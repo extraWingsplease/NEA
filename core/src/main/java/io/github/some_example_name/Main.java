@@ -180,10 +180,12 @@ public class Main implements ApplicationListener {
         for (Object object : objects) {
             object.advance();
             chunkz.positionOnGrid(object);
-            System.out.println(chunkz.collectiveBreakawayMass((int) (object.getLocation().x/chunksize), (int) (object.getLocation().y/chunksize), (int) (object.getLocation().z/chunksize)));
 
 
+        }
 
+        for (Object object : objects) {
+            System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));
         }
 
 
