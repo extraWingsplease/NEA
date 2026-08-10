@@ -55,6 +55,7 @@ public class Main implements ApplicationListener {
     ForceHandler forces;
     //int amount;
     Breakdown breakdown;
+    int chunksize;
     ChunkHandler chunkz;
 
 
@@ -78,11 +79,12 @@ public class Main implements ApplicationListener {
         models = new ArrayList<Model>();
         modelInstances = new ArrayList<ModelInstance>();
         trueSpeed = 1;
+        chunksize = 10;
         Gdx.input.setInputProcessor(mouse);
         objects = new ArrayList<Object>();
         testballs = new ArrayList<Object>();
         forces = new ForceHandler();
-        chunkz = new ChunkHandler(3);
+        chunkz = new ChunkHandler(chunksize);
 
 
         testball = new Object(10, 200, 50,-10,10, 0.1f,0,0,modelBuilder, false,false);
@@ -174,21 +176,18 @@ public class Main implements ApplicationListener {
     public void render() {
         forces.refreshArray(objects);
         //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-
+        chunkz.clear();
         for (Object object : objects) {
             object.advance();
-
-
-
-
-
-        }
-        /*
-        chunkz.clear();
-        for(Object object : objects){
             chunkz.positionOnGrid(object);
+            System.out.println(chunkz.collectiveBreakawayMass((int) (object.getLocation().x/chunksize), (int) (object.getLocation().y/chunksize), (int) (object.getLocation().z/chunksize)));
+
+
+
         }
 
+
+        /*
         for(Object object : objects){
             ArrayList<Object> collisionobj = chunkz.potentialColliders(object);
             forces.contact(collisionobj);

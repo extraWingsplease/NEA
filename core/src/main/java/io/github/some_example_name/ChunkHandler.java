@@ -73,4 +73,71 @@ public class ChunkHandler {
         }
         return vicinity;
     }
+
+    public float collectiveMass(int chunkX, int chunkY, int chunkZ){
+        float chunkMass = 0;
+        long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
+            (((long) chunkY & 0x1FFFFF) << 21) |
+            ((long) chunkZ & 0x1FFFFF);
+        ArrayList<Object> cellObjects = grid.get(longKey);
+        for (Object cellObject : cellObjects) {
+            chunkMass += cellObject.getMass();
+        }
+        return chunkMass;
+    }
+
+    public float collectiveBreakawayMass(int chunkX, int chunkY, int chunkZ){
+        float chunkMass = 0;
+        long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
+            (((long) chunkY & 0x1FFFFF) << 21) |
+            ((long) chunkZ & 0x1FFFFF);
+        ArrayList<Object> cellObjects = grid.get(longKey);
+        for (Object cellObject : cellObjects) {
+            if( cellObject.getBreakaway() ){
+                chunkMass += cellObject.getMass();
+            }
+        }
+        return chunkMass;
+    }
+
+    public Vector3 centreOfMass(int chunkX, int chunkY, int chunkZ){
+        float xMass = 0;
+        float yMass = 0;
+        float zMass = 0;
+        float chunkMass = collectiveMass(chunkX, chunkY,chunkZ);
+        long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
+            (((long) chunkY & 0x1FFFFF) << 21) |
+            ((long) chunkZ & 0x1FFFFF);
+        ArrayList<Object> cellObjects = grid.get(longKey);
+        for (Object cellObject : cellObjects){
+            xMass += cellObject.getMass() * cellObject.getLocation().x;
+            yMass += cellObject.getMass() * cellObject.getLocation().y;
+            zMass += cellObject.getMass() * cellObject.getLocation().z;
+        }
+        xMass = xMass/chunkMass;
+        yMass = yMass/chunkMass;
+        zMass = zMass/chunkMass;
+        return new Vector3(xMass,yMass,zMass);
+    }
+    public Vector3 centreOfBreakawayMass(int chunkX, int chunkY, int chunkZ){
+        float xMass = 0;
+        float yMass = 0;
+        float zMass = 0;
+        float chunkMass = collectiveBreakawayMass(chunkX, chunkY,chunkZ);
+        long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
+            (((long) chunkY & 0x1FFFFF) << 21) |
+            ((long) chunkZ & 0x1FFFFF);
+        ArrayList<Object> cellObjects = grid.get(longKey);
+        for (Object cellObject : cellObjects){
+            if(cellObject.getBreakaway()) {
+                xMass += cellObject.getMass() * cellObject.getLocation().x;
+                yMass += cellObject.getMass() * cellObject.getLocation().y;
+                zMass += cellObject.getMass() * cellObject.getLocation().z;
+            }
+        }
+        xMass = xMass/chunkMass;
+        yMass = yMass/chunkMass;
+        zMass = zMass/chunkMass;
+        return new Vector3(xMass,yMass,zMass);
+    }
 }

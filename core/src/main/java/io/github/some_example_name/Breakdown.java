@@ -24,7 +24,7 @@ public class Breakdown {
                                 coordinates[index] = new Vector3((i + ((float) (j + (j % 2)) / 2))/5+centre.x, (float) (k * (Math.pow(2, 0.5f) / Math.pow(3, 0.5f)))/5+centre.y, (float) (((3 * j) + (j)) / Math.pow(12, 0.5f))/5+centre.z);
                                 //System.out.println(coordinates[index]);
                                 index++;
-                                System.out.println("index " + index + ": "+i +", "+ j +", "+ k);
+                                //System.out.println("index " + index + ": "+i +", "+ j +", "+ k);
 
                             }
                         }
