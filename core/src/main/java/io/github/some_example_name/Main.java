@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.ScreenUtils;
+import java.util.Date;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -42,6 +43,7 @@ public class Main implements ApplicationListener {
     Vector3 camPosition;
     Vector3 camDirection;
     ArrayList<Model> models;
+    Date time;
 
     ArrayList<ModelInstance> modelInstances;
     Random random;
@@ -57,6 +59,8 @@ public class Main implements ApplicationListener {
     Breakdown breakdown;
     int chunksize;
     ChunkHandler chunkz;
+    int timeSpeed;
+    int previousspeed;
 
 
     @Override
@@ -85,6 +89,9 @@ public class Main implements ApplicationListener {
         testballs = new ArrayList<Object>();
         forces = new ForceHandler();
         chunkz = new ChunkHandler(chunksize);
+        time = new Date();
+        timeSpeed = 15;
+        previousspeed = timeSpeed;
 
 
         testball = new Object(10, 200, 50,-10,10, 0.1f,0,0,modelBuilder, false,false);
@@ -178,14 +185,14 @@ public class Main implements ApplicationListener {
         //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
         chunkz.clear();
         for (Object object : objects) {
-            object.advance();
+            object.advance(timeSpeed);
             chunkz.positionOnGrid(object);
 
 
         }
 
         for (Object object : objects) {
-            System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));
+            //System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));
         }
 
 
@@ -215,6 +222,26 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
             Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
             locked = !locked;
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            timeSpeed +=1;
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            if(timeSpeed>0) {
+                timeSpeed -= 1;
+            }
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+
+            if (timeSpeed != 0) {
+                previousspeed = timeSpeed;
+                timeSpeed *= 0;
+
+            }
+            else{
+                timeSpeed = previousspeed;
+            }
+
         }
         float apparentspeed = (float) (trueSpeed * Math.exp(0.35*mouse.currentSpeedLevel));
         doCameraMovement(camera,apparentspeed,0.15f,locked);

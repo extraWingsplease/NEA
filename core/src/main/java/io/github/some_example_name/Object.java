@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.ScreenUtils;
+import java.util.Date;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -40,6 +41,9 @@ public class Object {
     ModelInstance instance;
     Boolean breakaway;
     Boolean collision;
+    Date time;
+    float dTime;
+    long currenttime;
     public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw, Boolean merge){
         breakaway = breakw;
         radius = (float) rad;
@@ -52,6 +56,11 @@ public class Object {
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
         collision = !merge;
+        time = new Date();
+        currenttime = System.currentTimeMillis();
+        dTime = 0;
+        System.out.println(currenttime);
+
 
 
     }
@@ -87,11 +96,15 @@ public class Object {
     public Boolean getCollision() {return collision;}
     public void setCollision(Boolean collision) {this.collision = collision;}
 
-    public void advance(){
+    public void advance(int timeConstant){
+        dTime = (float) ( timeConstant* (System.currentTimeMillis() - currenttime)) /1000;
+        System.out.println((System.currentTimeMillis()-currenttime)/1000);
+        currenttime = System.currentTimeMillis();
         acceleration = resultantForce.scl(1/mass);
-        velocity.add(acceleration);
-        location.add(velocity);
+        velocity.add(acceleration.cpy().scl(dTime));
+        location.add(velocity.cpy().scl(dTime));
         resetForce();
+        dTime = 0;
 
     }
 
