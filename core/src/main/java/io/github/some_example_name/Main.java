@@ -100,11 +100,11 @@ public class Main implements ApplicationListener {
         testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false,false);
         testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false,false);
         objects.add(testball);
-        //objects.add(testball2);
-        //objects.add(testball3);
+        objects.add(testball2);
+        objects.add(testball3);
 
 
-        for(int i =0; i<breakdown.getCoordinates().length; i++) {
+        for(int i =0; i< breakdown.amount; i++) {
 
             //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
             objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, 0f, 0f, 0f, modelBuilder, true,false));
@@ -190,7 +190,16 @@ public class Main implements ApplicationListener {
             for (Object object : objects) {
                 object.advance(timeSpeed);
                 chunkz.positionOnGrid(object);
+
             }
+            for (int object = 0; object<objects.size();object++) {
+                if (objects.get(object).getDelete()) {
+                    //System.out.println("delete!");
+                    objects.remove(object);
+                }
+            }
+            //System.out.println(objects.get(0).getRadius());
+            System.out.println(objects.size());
 
             for (Object object : objects) {
                 //System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));

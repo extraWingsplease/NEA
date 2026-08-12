@@ -7,18 +7,24 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.*;
+import java.util.Random;
 
 public class ForceHandler {
     Breakdown breakdown;
     ArrayList<Object> noFakeObjects;
+    Random random;
+    ModelBuilder modelBuilder;
     public ForceHandler(){
         //breakdown = new Breakdown();
         noFakeObjects = new ArrayList<Object>();
+        random = new Random();
+        modelBuilder = new ModelBuilder();
     }
     public void refreshArray(ArrayList<Object> objects){
         noFakeObjects.clear();
@@ -103,7 +109,13 @@ public class ForceHandler {
 
 
      */
-    public void contact(ArrayList<Object> objects) {
+    public void contact(ArrayList<Object> REALobjects) {
+        ArrayList<Object> objects = new ArrayList<Object>();
+        for(int i=0; i<REALobjects.size(); i++){
+            if(REALobjects.get(i).getCollision()){
+                objects.add(REALobjects.get(i));
+            }
+        }
         for (int actor = 0; actor < objects.size(); actor++) {
             Object a = objects.get(actor);
             for (int victim = actor + 1; victim < objects.size(); victim++) {
@@ -111,6 +123,21 @@ public class ForceHandler {
                 Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
                 float magnitude = distance.len();
                 float radii = v.getRadius() + a.getRadius();
+                if(v.getBreakaway() && !a.getBreakaway() && Math.pow(magnitude,2) <= Math.pow(radii,2) ){
+                    if (a.collision && v.collision) {
+                        if (random.nextInt(0, 100) >= 90) {
+                            v.setCollision(false);
+                            v.startDeletiontimer(50);
+                            a.addMassWDENSITY(v.getMass());
+                        }
+                    } else if (!a.collision && v.collision) {
+                        if (random.nextFloat(0, 100) >= 99.7) {
+                            v.startDeletiontimer(50);
+                            a.addMassWRADIUS(v.getMass());
+                            a.refreshmodel(modelBuilder);
+                        }
+                    }
+                }
                 if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision){
                     Vector3 normal = distance.cpy().nor();
                     Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());

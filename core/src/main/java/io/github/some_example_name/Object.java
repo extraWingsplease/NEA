@@ -44,10 +44,13 @@ public class Object {
     Date time;
     float dTime;
     long currenttime;
+    long deletiontime;
+    Boolean delete;
     public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw, Boolean merge){
         breakaway = breakw;
         radius = (float) rad;
-        mass = (float) (3.14159 * Math.pow(radius, 3) * density * 0.75);
+        this.density = density;
+        mass = (float) (3.14159 * Math.pow(radius, 3) * density * 4/3);
         location = new Vector3(startX, startY, startZ);
         velocity = new Vector3(startVX, startVY, startVZ);
         resultantForce = new Vector3(0, 0,0);
@@ -59,7 +62,9 @@ public class Object {
         time = new Date();
         currenttime = System.currentTimeMillis();
         dTime = 0;
-        System.out.println(currenttime);
+        //System.out.println(currenttime);
+        deletiontime = -1;
+        delete = false;
 
 
 
@@ -71,6 +76,14 @@ public class Object {
 
     public float getMass() {return mass;}
     public void setMass(float mass) {this.mass = mass;}
+    public void addMassWRADIUS(float mass) {
+        this.mass+=mass;
+        radius = (float) Math.pow(((this.mass/density)/(Math.PI * 4.0/3.0)),1.0/3.0);
+    }
+    public void addMassWDENSITY(float mass) {
+        this.mass += mass;
+        density = (float) (this.mass/(Math.pow(radius,3)*Math.PI*4/3f));
+    }
 
     public float getDensity() {return density;}
     public void setDensity(float density) {this.density = density;}
@@ -96,6 +109,13 @@ public class Object {
     public Boolean getCollision() {return collision;}
     public void setCollision(Boolean collision) {this.collision = collision;}
 
+    public Boolean getDelete() {return delete;}
+    public void setDelete(Boolean delete) {this.delete = delete;}
+
+    public void startDeletiontimer(int milliseconds){
+        deletiontime = System.currentTimeMillis() + milliseconds;
+    }
+
     public void advance(float timeConstant){
         dTime = (float) ( timeConstant* (System.currentTimeMillis() - currenttime)) /1000;
         currenttime = System.currentTimeMillis();
@@ -104,7 +124,15 @@ public class Object {
         location.add(velocity.cpy().scl(dTime));
         resetForce();
         dTime = 0;
+        if(currenttime >= deletiontime && deletiontime != -1){
+            setDelete(true);
+        }
 
+    }
+    public void refreshmodel(ModelBuilder modelBuilder){
+        model.dispose();
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,new Material(ColorAttribute.createDiffuse(Color.WHITE)),Usage.Position | Usage.Normal);
+        instance = new ModelInstance(model);
     }
 
     public void draw(ModelBatch modelBatch){
