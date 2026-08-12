@@ -96,9 +96,8 @@ public class Object {
     public Boolean getCollision() {return collision;}
     public void setCollision(Boolean collision) {this.collision = collision;}
 
-    public void advance(int timeConstant){
+    public void advance(float timeConstant){
         dTime = (float) ( timeConstant* (System.currentTimeMillis() - currenttime)) /1000;
-        System.out.println((System.currentTimeMillis()-currenttime)/1000);
         currenttime = System.currentTimeMillis();
         acceleration = resultantForce.scl(1/mass);
         velocity.add(acceleration.cpy().scl(dTime));

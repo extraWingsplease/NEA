@@ -59,8 +59,9 @@ public class Main implements ApplicationListener {
     Breakdown breakdown;
     int chunksize;
     ChunkHandler chunkz;
-    int timeSpeed;
-    int previousspeed;
+    float timeSpeed;
+    float previousspeed;
+    boolean gamerunning;
 
 
     @Override
@@ -92,6 +93,7 @@ public class Main implements ApplicationListener {
         time = new Date();
         timeSpeed = 15;
         previousspeed = timeSpeed;
+        gamerunning = false;
 
 
         testball = new Object(10, 200, 50,-10,10, 0.1f,0,0,modelBuilder, false,false);
@@ -181,19 +183,18 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
-        forces.refreshArray(objects);
-        //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-        chunkz.clear();
-        for (Object object : objects) {
-            object.advance(timeSpeed);
-            chunkz.positionOnGrid(object);
+        if (!gamerunning) {
+            forces.refreshArray(objects);
+            //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+            chunkz.clear();
+            for (Object object : objects) {
+                object.advance(timeSpeed);
+                chunkz.positionOnGrid(object);
+            }
 
-
-        }
-
-        for (Object object : objects) {
-            //System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));
-        }
+            for (Object object : objects) {
+                //System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));
+            }
 
 
         /*
@@ -202,53 +203,49 @@ public class Main implements ApplicationListener {
             forces.contact(collisionobj);
         }
         */
-        forces.contact(objects);
-        forces.gravity(objects);
-        //}
+            forces.contact(objects);
+            forces.gravity(objects);
+            //}
 
 
-
-
-
-        int currentspeed = mouse.currentSpeedLevel;
-        if(mouse.currentSpeedLevel > mouse.scrollMax){
-            mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10);
-        }
-        if(mouse.currentSpeedLevel < -mouse.scrollMax){
-            mouse.currentSpeedLevel -= Math.floorDiv(currentspeed,10)+1;
-        }
-        //System.out.println(mouse.currentSpeedLevel);
-        ScreenUtils.clear(0f,0f,0f,0f);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
-            Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
-            locked = !locked;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            timeSpeed +=1;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            if(timeSpeed>0) {
-                timeSpeed -= 1;
+            int currentspeed = mouse.currentSpeedLevel;
+            if (mouse.currentSpeedLevel > mouse.scrollMax) {
+                mouse.currentSpeedLevel -= Math.floorDiv(currentspeed, 10);
             }
-        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            if (mouse.currentSpeedLevel < -mouse.scrollMax) {
+                mouse.currentSpeedLevel -= Math.floorDiv(currentspeed, 10) + 1;
+            }
+            //System.out.println(mouse.currentSpeedLevel);
+            ScreenUtils.clear(0f, 0f, 0f, 0f);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)) {
+                Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+                locked = !locked;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                timeSpeed *= 1.1;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                if (timeSpeed > 0) {
+                    timeSpeed /= 1.1;
+                }
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 
-            if (timeSpeed != 0) {
-                previousspeed = timeSpeed;
-                timeSpeed *= 0;
+                if (timeSpeed != 0) {
+                    previousspeed = timeSpeed;
+                    timeSpeed *= 0;
+
+                } else {
+                    timeSpeed = previousspeed;
+                }
 
             }
-            else{
-                timeSpeed = previousspeed;
-            }
-
-        }
-        float apparentspeed = (float) (trueSpeed * Math.exp(0.35*mouse.currentSpeedLevel));
-        doCameraMovement(camera,apparentspeed,0.15f,locked);
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        modelBatch.begin(camera);
-        camera.update();
+            float apparentspeed = (float) (trueSpeed * Math.exp(0.35 * mouse.currentSpeedLevel));
+            doCameraMovement(camera, apparentspeed, 0.15f, locked);
+            Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+            modelBatch.begin(camera);
+            camera.update();
         /*
         for(int i =0; i<breakdown.getCoordinates().length; i++) {
             modelBatch.render(modelInstances.get(i));
@@ -257,11 +254,12 @@ public class Main implements ApplicationListener {
          */
 
 
-        for(int i =0; i<objects.size(); i++) {
-            objects.get(i).draw(modelBatch);
-        }
+            for (int i = 0; i < objects.size(); i++) {
+                objects.get(i).draw(modelBatch);
+            }
 
-        modelBatch.end();
+            modelBatch.end();
+        }
     }
 
     @Override
