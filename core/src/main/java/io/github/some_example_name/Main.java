@@ -98,8 +98,8 @@ public class Main implements ApplicationListener {
 
 
         testball = new Object(10, 200, 50,-10,10, 0.1f,0,0,modelBuilder, false,false);
-        testball2 = new Object(3, 100, 100,0,-50, 0,0,0,modelBuilder, false,false);
-        testball3 = new Object(5, 100, 100,50,0, 0f,0f,0,modelBuilder, false,false);
+        testball2 = new Object(3, 100, 50,0,-50, 0,0,0,modelBuilder, false,false);
+        testball3 = new Object(5, 100, 50,0,0, 0f,0f,0,modelBuilder, false,false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);

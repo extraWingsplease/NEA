@@ -134,9 +134,9 @@ public class Object {
         location.add(velocity.cpy().scl(dTime));
         resetForce();
         timeSinceLastCollision +=  dTime;
-        System.out.println(dTime);
+        //System.out.println(dTime);
         dTime = 0;
-        //System.out.println(deletiontime);
+        System.out.println(deletiontime);
         if(currenttime >= deletiontime && deletiontime != -1){
             setDelete(true);
             //System.out.println("deleted");
@@ -144,8 +144,8 @@ public class Object {
         if(timeSinceLastCollision >= 120 && timeSinceLastCollision != -1 && getBreakaway()){
             if(getCollision()) {
                 setCollision(false);
-                material = new Material(ColorAttribute.createDiffuse(Color.GREEN));
-                refreshmodel(modelBuilder);
+                //material = new Material(ColorAttribute.createDiffuse(Color.GREEN));
+                //refreshmodel(modelBuilder);
             }
             //System.out.println("collision off");
 
