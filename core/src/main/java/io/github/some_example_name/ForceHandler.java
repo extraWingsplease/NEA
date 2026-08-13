@@ -116,7 +116,7 @@ public class ForceHandler {
                 objects.add(REALobjects.get(i));
             }
         }
-        System.out.println(objects.size() + ":" + REALobjects.size());
+        //System.out.println(objects.size() + ":" + REALobjects.size());
         for (int actor = 0; actor < objects.size(); actor++) {
             Object a = objects.get(actor);
             for (int victim = 0; victim < REALobjects.size(); victim++) {

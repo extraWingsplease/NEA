@@ -134,6 +134,7 @@ public class Object {
         location.add(velocity.cpy().scl(dTime));
         resetForce();
         timeSinceLastCollision +=  dTime;
+        System.out.println(dTime);
         dTime = 0;
         //System.out.println(deletiontime);
         if(currenttime >= deletiontime && deletiontime != -1){
