@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.Date;
 
@@ -189,16 +190,21 @@ public class Main implements ApplicationListener {
             forces.refreshArray(objects);
             chunkz.clear();
             for (Object object : objects) {
-                object.advance(timeSpeed);
+                object.advance(timeSpeed,modelBuilder);
                 chunkz.positionOnGrid(object);
 
             }
+            ArrayList<Object> blacklist = new ArrayList<>();
             for (int object = 0; object<objects.size();object++) {
                 if (objects.get(object).getDelete()) {
                     //System.out.println("delete!");
-                    objects.remove(object);
+                    blacklist.add(objects.get(object));
                 }
             }
+            for(int i =0; i<blacklist.size(); i++){
+                objects.remove(blacklist.get(i));
+            }
+            blacklist.clear();
             //System.out.println(objects.get(0).getRadius());
             //System.out.println(objects.get(0).getDensity());
             //System.out.println(objects.size());

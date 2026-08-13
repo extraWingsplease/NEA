@@ -47,7 +47,8 @@ public class Object {
     long deletiontime;
     Boolean delete;
     float currentTimeConstant;
-    long timeOfLastCollision;
+    float timeSinceLastCollision;
+    Material material;
     public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw, Boolean merge){
         breakaway = breakw;
         radius = (float) rad;
@@ -57,18 +58,19 @@ public class Object {
         velocity = new Vector3(startVX, startVY, startVZ);
         resultantForce = new Vector3(0, 0,0);
         acceleration = new Vector3(0, 0,0);
-        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,new Material(ColorAttribute.createDiffuse(Color.WHITE)),Usage.Position | Usage.Normal);
+        material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
         collision = !merge;
         time = new Date();
         currenttime = System.currentTimeMillis();
         dTime = 0;
-        currentTimeConstant = 100;
+        currentTimeConstant = 1;
         //System.out.println(currenttime);
         deletiontime = -1;
         delete = false;
-        timeOfLastCollision = -1;
+        timeSinceLastCollision = -1;
 
 
 
@@ -116,15 +118,14 @@ public class Object {
     public Boolean getDelete() {return delete;}
     public void setDelete(Boolean delete) {this.delete = delete;}
 
-    public long getTimeOfLastCollision() {return timeOfLastCollision;}
-
-    public void setTimeOfLastCollision(long timeOfLastCollision) {this.timeOfLastCollision = timeOfLastCollision;}
+    public float getTimeSinceLastCollision() {return timeSinceLastCollision;}
+    public void setTimeSinceLastCollision(float timeSinceLastCollision) {this.timeSinceLastCollision = timeSinceLastCollision;}
 
     public void startDeletiontimer(int milliseconds){
         deletiontime = (long) (System.currentTimeMillis() + (milliseconds * currentTimeConstant));
     }
 
-    public void advance(float timeConstant){
+    public void advance(float timeConstant, ModelBuilder modelBuilder){
         currentTimeConstant = timeConstant;
         dTime = (float) ( currentTimeConstant* (System.currentTimeMillis() - currenttime)) /1000;
         currenttime = System.currentTimeMillis();
@@ -132,20 +133,27 @@ public class Object {
         velocity.add(acceleration.cpy().scl(dTime));
         location.add(velocity.cpy().scl(dTime));
         resetForce();
+        timeSinceLastCollision +=  dTime;
         dTime = 0;
+        //System.out.println(deletiontime);
         if(currenttime >= deletiontime && deletiontime != -1){
             setDelete(true);
-            System.out.println("deleted");
+            //System.out.println("deleted");
         }
-        if(currenttime -timeOfLastCollision >= 100*timeConstant && timeOfLastCollision != -1 && getBreakaway()){
-            setCollision(false);
+        if(timeSinceLastCollision >= 120 && timeSinceLastCollision != -1 && getBreakaway()){
+            if(getCollision()) {
+                setCollision(false);
+                material = new Material(ColorAttribute.createDiffuse(Color.GREEN));
+                refreshmodel(modelBuilder);
+            }
             //System.out.println("collision off");
+
         }
 
     }
     public void refreshmodel(ModelBuilder modelBuilder){
         model.dispose();
-        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,new Material(ColorAttribute.createDiffuse(Color.WHITE)),Usage.Position | Usage.Normal);
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
     }
 

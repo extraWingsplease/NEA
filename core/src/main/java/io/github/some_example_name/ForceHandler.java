@@ -119,15 +119,14 @@ public class ForceHandler {
         System.out.println(objects.size() + ":" + REALobjects.size());
         for (int actor = 0; actor < objects.size(); actor++) {
             Object a = objects.get(actor);
-            for (int victim = actor+1; victim < REALobjects.size(); victim++) {
+            for (int victim = 0; victim < REALobjects.size(); victim++) {
                 Object v = REALobjects.get(victim);
+                if(v!=a){
                 Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
                 float magnitude = distance.len();
                 float radii = v.getRadius() + a.getRadius();
                 if(v.getBreakaway() && !a.getBreakaway() && Math.pow(magnitude,2) <= Math.pow(radii,2)){
                     //System.out.println("collision");
-                    a.setTimeOfLastCollision(System.currentTimeMillis());
-                    v.setTimeOfLastCollision(System.currentTimeMillis());
                     if (a.collision) {
                         if (random.nextInt(0, 100) >= 90) {
                             v.setCollision(false);
@@ -141,7 +140,7 @@ public class ForceHandler {
                             }
                         }
                     } else {
-                        if (random.nextFloat(0, 100) >= 99.7) {
+                        if (random.nextFloat() >= 0.997f) {
                             v.startDeletiontimer(5);
                             if (random.nextInt(0, 100) >= 90) {
                                 a.addMassWDENSITY(v.getMass());
@@ -154,30 +153,30 @@ public class ForceHandler {
                         }
                     }
                 }
-                if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision){
+                if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision) {
                     Vector3 normal = distance.cpy().nor();
                     Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
                     float velocityAlongNormal = relativeVelocity.dot(normal);
-                        float massA = a.getMass();
-                        float massV = v.getMass();
+                    float massA = a.getMass();
+                    float massV = v.getMass();
 
-                        float impulseScalar = -(1.99f) * velocityAlongNormal;
-                        impulseScalar *= 1/(1 / massA + 1 / massV);
-                        Vector3 impulse = normal.cpy().scl(impulseScalar);
+                    float impulseScalar = -(1.99f) * velocityAlongNormal;
+                    impulseScalar *= 1 / (1 / massA + 1 / massV);
+                    Vector3 impulse = normal.cpy().scl(impulseScalar);
 
-                        a.getVelocity().add(impulse.cpy().scl(1 / massA));
-                        v.getVelocity().sub(impulse.cpy().scl(1 / massV));
-                        float overlap = radii - magnitude;
-                        float allowance = 0.01f;
+                    a.getVelocity().add(impulse.cpy().scl(1 / massA));
+                    v.getVelocity().sub(impulse.cpy().scl(1 / massV));
+                    float overlap = radii - magnitude;
+                    float allowance = 0.01f;
 
-                        Vector3 correction = normal.cpy().scl(Math.max(overlap - allowance, 0.0f) / (1 / massA + 1 / massV));
+                    Vector3 correction = normal.scl(Math.max(overlap - allowance, 0.0f) / (1 / massA + 1 / massV));
 
-                        a.getLocation().sub(correction.cpy().scl(1 / massA));
-                        v.getLocation().add(correction.cpy().scl(1 / massV));
-                        a.setTimeOfLastCollision(System.currentTimeMillis());
-                        v.setTimeOfLastCollision(System.currentTimeMillis());
+                    a.getLocation().sub(correction.cpy().scl(1 / massA));
+                    v.getLocation().add(correction.cpy().scl(1 / massV));
+                    a.setTimeSinceLastCollision(0);
+                    v.setTimeSinceLastCollision(0);
 
-
+                }
                 }
             }
         }
