@@ -72,7 +72,7 @@ public class Main implements ApplicationListener {
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
-        breakdown = new Breakdown(new Vector3(100,10,10));
+        breakdown = new Breakdown(new Vector3(100,10,10),5);
         camera.lookAt(100,10,10);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
@@ -104,10 +104,10 @@ public class Main implements ApplicationListener {
         objects.add(testball3);
 
 
-        for(int i =0; i< breakdown.amount; i++) {
+        for(int i =0; i< breakdown.getAmount(); i++) {
 
             //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
-            objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, 0f, 0f, 0f, modelBuilder, true,false));
+            objects.add(new Object(random.nextFloat(0.05f,0.4f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, 0f, 0f, 0f, modelBuilder, true,false));
         }
 
         //amount= 10000;
@@ -184,8 +184,9 @@ public class Main implements ApplicationListener {
     @Override
     public void render() {
         if (!gamerunning) {
-            forces.refreshArray(objects);
+
             //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+            forces.refreshArray(objects);
             chunkz.clear();
             for (Object object : objects) {
                 object.advance(timeSpeed);
@@ -199,7 +200,8 @@ public class Main implements ApplicationListener {
                 }
             }
             //System.out.println(objects.get(0).getRadius());
-            System.out.println(objects.size());
+            //System.out.println(objects.get(0).getDensity());
+            //System.out.println(objects.size());
 
             for (Object object : objects) {
                 //System.out.println(chunkz.centreOfBreakawayMass((int) (object.getLocation().x / chunksize), (int) (object.getLocation().y / chunksize), (int) (object.getLocation().z / chunksize)));
@@ -247,7 +249,6 @@ public class Main implements ApplicationListener {
                 } else {
                     timeSpeed = previousspeed;
                 }
-
             }
             float apparentspeed = (float) (trueSpeed * Math.exp(0.35 * mouse.currentSpeedLevel));
             doCameraMovement(camera, apparentspeed, 0.15f, locked);

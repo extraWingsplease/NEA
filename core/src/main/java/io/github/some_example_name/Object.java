@@ -46,6 +46,8 @@ public class Object {
     long currenttime;
     long deletiontime;
     Boolean delete;
+    float currentTimeConstant;
+    long timeOfLastCollision;
     public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw, Boolean merge){
         breakaway = breakw;
         radius = (float) rad;
@@ -62,9 +64,11 @@ public class Object {
         time = new Date();
         currenttime = System.currentTimeMillis();
         dTime = 0;
+        currentTimeConstant = 100;
         //System.out.println(currenttime);
         deletiontime = -1;
         delete = false;
+        timeOfLastCollision = -1;
 
 
 
@@ -112,12 +116,17 @@ public class Object {
     public Boolean getDelete() {return delete;}
     public void setDelete(Boolean delete) {this.delete = delete;}
 
+    public long getTimeOfLastCollision() {return timeOfLastCollision;}
+
+    public void setTimeOfLastCollision(long timeOfLastCollision) {this.timeOfLastCollision = timeOfLastCollision;}
+
     public void startDeletiontimer(int milliseconds){
-        deletiontime = System.currentTimeMillis() + milliseconds;
+        deletiontime = (long) (System.currentTimeMillis() + (milliseconds * currentTimeConstant));
     }
 
     public void advance(float timeConstant){
-        dTime = (float) ( timeConstant* (System.currentTimeMillis() - currenttime)) /1000;
+        currentTimeConstant = timeConstant;
+        dTime = (float) ( currentTimeConstant* (System.currentTimeMillis() - currenttime)) /1000;
         currenttime = System.currentTimeMillis();
         acceleration = resultantForce.scl(1/mass);
         velocity.add(acceleration.cpy().scl(dTime));
@@ -126,6 +135,11 @@ public class Object {
         dTime = 0;
         if(currenttime >= deletiontime && deletiontime != -1){
             setDelete(true);
+            System.out.println("deleted");
+        }
+        if(currenttime -timeOfLastCollision >= 100*timeConstant && timeOfLastCollision != -1 && getBreakaway()){
+            setCollision(false);
+            //System.out.println("collision off");
         }
 
     }

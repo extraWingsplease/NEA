@@ -48,7 +48,7 @@ public class ForceHandler {
                 //System.out.println("distance from " +victim + " to " + actor + ": " + distance + magnitude);
                 //System.out.println(distance.nor().scl((float) (objects.get(actor).getMass() / Math.pow(magnitude, 2))));
 
-                if (magnitude!=0) {
+                if (magnitude!= 0 && Math.pow(magnitude,2) >= Math.pow(a.radius,2)/4) {
                     Vector3 gravitation = distance.nor().scl((float) (-0.0000006743 * (a.getMass() * v.getMass()) / Math.pow(magnitude, 2)));
                     v.newForce(gravitation);
                     a.newForce(gravitation.scl(-1));
@@ -116,25 +116,41 @@ public class ForceHandler {
                 objects.add(REALobjects.get(i));
             }
         }
+        System.out.println(objects.size() + ":" + REALobjects.size());
         for (int actor = 0; actor < objects.size(); actor++) {
             Object a = objects.get(actor);
-            for (int victim = actor + 1; victim < objects.size(); victim++) {
-                Object v = objects.get(victim);
+            for (int victim = actor+1; victim < REALobjects.size(); victim++) {
+                Object v = REALobjects.get(victim);
                 Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
                 float magnitude = distance.len();
                 float radii = v.getRadius() + a.getRadius();
-                if(v.getBreakaway() && !a.getBreakaway() && Math.pow(magnitude,2) <= Math.pow(radii,2) ){
-                    if (a.collision && v.collision) {
+                if(v.getBreakaway() && !a.getBreakaway() && Math.pow(magnitude,2) <= Math.pow(radii,2)){
+                    //System.out.println("collision");
+                    a.setTimeOfLastCollision(System.currentTimeMillis());
+                    v.setTimeOfLastCollision(System.currentTimeMillis());
+                    if (a.collision) {
                         if (random.nextInt(0, 100) >= 90) {
                             v.setCollision(false);
-                            v.startDeletiontimer(50);
-                            a.addMassWDENSITY(v.getMass());
+                            v.startDeletiontimer(5);
+                            if (random.nextInt(0, 100) >= 90) {
+                                a.addMassWRADIUS(v.getMass());
+                                a.refreshmodel(modelBuilder);
+                            }
+                            else{
+                                a.addMassWDENSITY(v.getMass());
+                            }
                         }
-                    } else if (!a.collision && v.collision) {
+                    } else {
                         if (random.nextFloat(0, 100) >= 99.7) {
-                            v.startDeletiontimer(50);
-                            a.addMassWRADIUS(v.getMass());
-                            a.refreshmodel(modelBuilder);
+                            v.startDeletiontimer(5);
+                            if (random.nextInt(0, 100) >= 90) {
+                                a.addMassWDENSITY(v.getMass());
+                            }
+                            else{
+                                a.addMassWRADIUS(v.getMass());
+                                a.refreshmodel(modelBuilder);
+                            }
+
                         }
                     }
                 }
@@ -158,6 +174,10 @@ public class ForceHandler {
 
                         a.getLocation().sub(correction.cpy().scl(1 / massA));
                         v.getLocation().add(correction.cpy().scl(1 / massV));
+                        a.setTimeOfLastCollision(System.currentTimeMillis());
+                        v.setTimeOfLastCollision(System.currentTimeMillis());
+
+
                 }
             }
         }
