@@ -20,13 +20,15 @@ public class ForceHandler {
     ArrayList<Object> noFakeObjects;
     Random random;
     ModelBuilder modelBuilder;
-    Boolean skiploop;
+    Boolean breakoff;
+    ArrayList<Object> breakDownObjects;
     public ForceHandler(){
         //breakdown = new Breakdown();
         noFakeObjects = new ArrayList<Object>();
         random = new Random();
         modelBuilder = new ModelBuilder();
-        skiploop = false;
+        breakoff = false;
+        breakDownObjects = new ArrayList<Object>();
     }
     public void refreshArray(ArrayList<Object> objects){
         noFakeObjects.clear();
@@ -111,15 +113,9 @@ public class ForceHandler {
 
 
      */
-    public void triggerBreakaway(ArrayList<Object> objects, Object object){
-        breakdown = new Breakdown(object.getLocation(), object.getRadius());
-        for(int i =0; i< breakdown.getAmount(); i++) {
-            //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
-            objects.add(new Object(random.nextFloat(0.05f,0.4f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true,false));
-        }
-        objects.remove(object);
-    }
-    public void contact(ArrayList<Object> REALobjects) {
+
+    public ArrayList<Object> contact(ArrayList<Object> REALobjects) {
+        breakDownObjects.clear();
         ArrayList<Object> objects = new ArrayList<Object>();
         for(int i=0; i<REALobjects.size(); i++){
             if(REALobjects.get(i).getCollision()){
@@ -163,13 +159,18 @@ public class ForceHandler {
                         }
                     }
                 }
+                breakoff = false;
+                if(!v.getBreakaway() && !a.getBreakaway() && a.getMass() > v.getMass()){
+
+                    breakoff = true;
+                }
                 if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision) {
-                    skiploop = false;
-                    if(!v.getBreakaway() && !a.getBreakaway() && a.getMass() > v.getMass()/100){
-                        triggerBreakaway(objects,v);
-                        skiploop = true;
+                    //System.out.println("COLLISION");
+                    if(breakoff){
+                        breakDownObjects.add(v);
+                        v.setCollision(false);
                     }
-                    if(!skiploop) {
+                    else if(!breakDownObjects.contains(a) && !breakDownObjects.contains(v)){
                         Vector3 normal = distance.cpy().nor();
                         Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
                         float velocityAlongNormal = relativeVelocity.dot(normal);
@@ -192,11 +193,11 @@ public class ForceHandler {
                         a.setTimeSinceLastCollision(0);
                         v.setTimeSinceLastCollision(0);
                     }
-
-                }
+                    }
                 }
             }
         }
+        return breakDownObjects;
     }
 
 

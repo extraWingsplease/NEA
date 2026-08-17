@@ -55,6 +55,7 @@ public class Main implements ApplicationListener {
     Object testball3;
     ArrayList<Object> testballs;
     ArrayList<Object> objects;
+    ArrayList<Object> breakDownObjects;
     ForceHandler forces;
     //int amount;
     Breakdown breakdown;
@@ -94,11 +95,12 @@ public class Main implements ApplicationListener {
         timeSpeed = 15;
         previousspeed = timeSpeed;
         gamerunning = false;
+        breakDownObjects = new ArrayList<Object>();
 
 
-        testball = new Object(10, 200, 50,-10,10, 0.1f,0,0,modelBuilder, false,false);
+        testball = new Object(3, 200, 50,-10,10, 0f,0.1f,0,modelBuilder, false,false);
         testball2 = new Object(3, 100, 50,0,-50, 0,0,0,modelBuilder, false,false);
-        testball3 = new Object(5, 100, 50,0,0, 0f,0f,0,modelBuilder, false,false);
+        testball3 = new Object(5, 2000, 50,0,10, 0f,0f,0,modelBuilder, false,false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
@@ -176,6 +178,13 @@ public class Main implements ApplicationListener {
         //System.out.println(camera.direction);
         ;
     }
+    public void triggerBreakaway(ArrayList<Object> objects, Object object){
+        breakdown = new Breakdown(object.getLocation(), object.getRadius());
+        for(int i =0; i< breakdown.getAmount(); i++) {
+            //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
+            objects.add(new Object(random.nextFloat(0.05f,0.4f), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true,false));
+        }
+    }
     @Override
     public void render() {
         if (!gamerunning) {
@@ -186,6 +195,7 @@ public class Main implements ApplicationListener {
             for (Object object : objects) {
                 object.advance(timeSpeed,modelBuilder);
                 chunkz.positionOnGrid(object);
+                //System.out.println(object.getCollision());
 
             }
             ArrayList<Object> blacklist = new ArrayList<>();
@@ -194,6 +204,7 @@ public class Main implements ApplicationListener {
                     //System.out.println("delete!");
                     blacklist.add(objects.get(object));
                 }
+                System.out.println(object);
             }
             for(int i =0; i<blacklist.size(); i++){
                 objects.remove(blacklist.get(i));
@@ -214,8 +225,13 @@ public class Main implements ApplicationListener {
             forces.contact(collisionobj);
         }
         */
-            forces.contact(objects);
+            breakDownObjects.clear();
+            breakDownObjects = forces.contact(objects);
             forces.gravity(objects);
+            for(int i=0; i<breakDownObjects.size(); i++){
+                triggerBreakaway(objects,breakDownObjects.get(i));
+                breakDownObjects.get(i).setDelete(true);
+            }
             //}
 
 

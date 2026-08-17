@@ -136,7 +136,7 @@ public class Object {
         timeSinceLastCollision +=  dTime;
         //System.out.println(dTime);
         dTime = 0;
-        System.out.println(deletiontime);
+        //System.out.println(deletiontime);
         if(currenttime >= deletiontime && deletiontime != -1){
             setDelete(true);
             //System.out.println("deleted");
