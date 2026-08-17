@@ -73,7 +73,6 @@ public class Main implements ApplicationListener {
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
-        breakdown = new Breakdown(new Vector3(100,10,10),5);
         camera.lookAt(100,10,10);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
@@ -105,11 +104,6 @@ public class Main implements ApplicationListener {
         objects.add(testball3);
 
 
-        for(int i =0; i< breakdown.getAmount(); i++) {
-
-            //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
-            objects.add(new Object(random.nextFloat(0.05f,0.4f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, 0f, 0f, 0f, modelBuilder, true,false));
-        }
 
         //amount= 10000;
         /*

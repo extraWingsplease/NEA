@@ -20,11 +20,13 @@ public class ForceHandler {
     ArrayList<Object> noFakeObjects;
     Random random;
     ModelBuilder modelBuilder;
+    Boolean skiploop;
     public ForceHandler(){
         //breakdown = new Breakdown();
         noFakeObjects = new ArrayList<Object>();
         random = new Random();
         modelBuilder = new ModelBuilder();
+        skiploop = false;
     }
     public void refreshArray(ArrayList<Object> objects){
         noFakeObjects.clear();
@@ -109,6 +111,14 @@ public class ForceHandler {
 
 
      */
+    public void triggerBreakaway(ArrayList<Object> objects, Object object){
+        breakdown = new Breakdown(object.getLocation(), object.getRadius());
+        for(int i =0; i< breakdown.getAmount(); i++) {
+            //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
+            objects.add(new Object(random.nextFloat(0.05f,0.4f), 100, breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true,false));
+        }
+        objects.remove(object);
+    }
     public void contact(ArrayList<Object> REALobjects) {
         ArrayList<Object> objects = new ArrayList<Object>();
         for(int i=0; i<REALobjects.size(); i++){
@@ -154,27 +164,34 @@ public class ForceHandler {
                     }
                 }
                 if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision) {
-                    Vector3 normal = distance.cpy().nor();
-                    Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
-                    float velocityAlongNormal = relativeVelocity.dot(normal);
-                    float massA = a.getMass();
-                    float massV = v.getMass();
+                    skiploop = false;
+                    if(!v.getBreakaway() && !a.getBreakaway() && a.getMass() > v.getMass()/100){
+                        triggerBreakaway(objects,v);
+                        skiploop = true;
+                    }
+                    if(!skiploop) {
+                        Vector3 normal = distance.cpy().nor();
+                        Vector3 relativeVelocity = a.getVelocity().cpy().sub(v.getVelocity());
+                        float velocityAlongNormal = relativeVelocity.dot(normal);
+                        float massA = a.getMass();
+                        float massV = v.getMass();
 
-                    float impulseScalar = -(1.99f) * velocityAlongNormal;
-                    impulseScalar *= 1 / (1 / massA + 1 / massV);
-                    Vector3 impulse = normal.cpy().scl(impulseScalar);
+                        float impulseScalar = -(1.99f) * velocityAlongNormal;
+                        impulseScalar *= 1 / (1 / massA + 1 / massV);
+                        Vector3 impulse = normal.cpy().scl(impulseScalar);
 
-                    a.getVelocity().add(impulse.cpy().scl(1 / massA));
-                    v.getVelocity().sub(impulse.cpy().scl(1 / massV));
-                    float overlap = radii - magnitude;
-                    float allowance = 0.01f;
+                        a.getVelocity().add(impulse.cpy().scl(1 / massA));
+                        v.getVelocity().sub(impulse.cpy().scl(1 / massV));
+                        float overlap = radii - magnitude;
+                        float allowance = 0.01f;
 
-                    Vector3 correction = normal.scl(Math.max(overlap - allowance, 0.0f) / (1 / massA + 1 / massV));
+                        Vector3 correction = normal.scl(Math.max(overlap - allowance, 0.0f) / (1 / massA + 1 / massV));
 
-                    a.getLocation().sub(correction.cpy().scl(1 / massA));
-                    v.getLocation().add(correction.cpy().scl(1 / massV));
-                    a.setTimeSinceLastCollision(0);
-                    v.setTimeSinceLastCollision(0);
+                        a.getLocation().sub(correction.cpy().scl(1 / massA));
+                        v.getLocation().add(correction.cpy().scl(1 / massV));
+                        a.setTimeSinceLastCollision(0);
+                        v.setTimeSinceLastCollision(0);
+                    }
 
                 }
                 }
