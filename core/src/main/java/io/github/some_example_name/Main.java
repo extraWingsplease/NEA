@@ -32,6 +32,15 @@ import com.badlogic.gdx.InputAdapter;
 
 import java.util.ArrayList;
 
+/*
+CONSTANTS/NOTABLE THINGS FOR THIS SIMULATION:
+Gravitational constant - 0.0000006743
+Speed of light - 173.9848013
+Density of the sun - 1
+Radius of the sun - 1000
+all calculations are done relative to the sun's density and radius
+ */
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main implements ApplicationListener {
     PerspectiveCamera camera;
@@ -53,6 +62,7 @@ public class Main implements ApplicationListener {
     Object testball;
     Object testball2;
     Object testball3;
+    Object testball4;
     ArrayList<Object> testballs;
     ArrayList<Object> objects;
     ArrayList<Object> breakDownObjects;
@@ -70,19 +80,18 @@ public class Main implements ApplicationListener {
     public void create() {
         modelBatch = new ModelBatch();
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camPosition = new Vector3(10,10,10);
+        camPosition = new Vector3(-2000,10,10);
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
         camera.lookAt(100,10,10);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
-        camera.far = 10000f;
+        camera.far = 100000000f;
         camera.update();
         vertical = new Vector3(0,1,0);
         boolean locked = false;
-        modelBuilder = new ModelBuilder();
-        models = new ArrayList<Model>();
+        modelBuilder = new ModelBuilder();        models = new ArrayList<Model>();
         modelInstances = new ArrayList<ModelInstance>();
         trueSpeed = 1;
         chunksize = 10;
@@ -98,12 +107,19 @@ public class Main implements ApplicationListener {
         breakDownObjects = new ArrayList<Object>();
 
 
-        testball = new Object(3, 200, 50,-10,10, 0f,0.1f,0,modelBuilder, false,false);
-        testball2 = new Object(3, 100, 50,0,-50, 0,0,0,modelBuilder, false,false);
-        testball3 = new Object(5, 2000, 50,0,10, 0f,0f,0,modelBuilder, false,false);
+        testball = new Object(10, 100, 2000,0,90, 0f,0f,0,modelBuilder, false);
+        testball2 = new Object(1000, 1, 200,0,-70, 0,0,0,modelBuilder, false);
+        testball3 = new Object(10, 100, 200,0,2000, 0f,0f,0,modelBuilder, false);
+        testball4 = new Object(280000000, (float) 1 /15000, 1E10F,0,0, 0f,0f,0,modelBuilder, false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
+        objects.add(testball4);
+        for (Object object : objects) {
+            object.assignCategory();
+            object.assignProperties(modelBuilder);
+            System.out.println(testball2.schwarzschildRadius);
+        }
 
 
 
@@ -182,7 +198,7 @@ public class Main implements ApplicationListener {
         breakdown = new Breakdown(object.getLocation(), object.getRadius());
         for(int i =0; i< breakdown.getAmount(); i++) {
             //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
-            objects.add(new Object(random.nextFloat(0.05f,0.4f), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true,false));
+            objects.add(new Object(random.nextFloat((float) Math.pow(object.getRadius()/60,1/2f), (float) (object.getRadius()/7.5)), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true));
         }
     }
     @Override
@@ -196,6 +212,7 @@ public class Main implements ApplicationListener {
                 object.advance(timeSpeed,modelBuilder);
                 chunkz.positionOnGrid(object);
                 //System.out.println(object.getCollision());
+                //System.out.println(object.getMass());
 
             }
             ArrayList<Object> blacklist = new ArrayList<>();
@@ -204,7 +221,7 @@ public class Main implements ApplicationListener {
                     //System.out.println("delete!");
                     blacklist.add(objects.get(object));
                 }
-                System.out.println(object);
+                //System.out.println(object);
             }
             for(int i =0; i<blacklist.size(); i++){
                 objects.remove(blacklist.get(i));
@@ -230,6 +247,7 @@ public class Main implements ApplicationListener {
             forces.gravity(objects);
             for(int i=0; i<breakDownObjects.size(); i++){
                 triggerBreakaway(objects,breakDownObjects.get(i));
+                breakDownObjects.get(i).setCollision(false);
                 breakDownObjects.get(i).setDelete(true);
             }
             //}
@@ -269,6 +287,7 @@ public class Main implements ApplicationListener {
             float apparentspeed = (float) (trueSpeed * Math.exp(0.35 * mouse.currentSpeedLevel));
             doCameraMovement(camera, apparentspeed, 0.15f, locked);
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
             modelBatch.begin(camera);
             camera.update();
@@ -281,6 +300,7 @@ public class Main implements ApplicationListener {
 
 
             for (int i = 0; i < objects.size(); i++) {
+                objects.get(i).draw(modelBatch);
                 objects.get(i).draw(modelBatch);
             }
 

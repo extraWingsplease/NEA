@@ -20,7 +20,7 @@ public class Breakdown {
         if(!done){
             coordinates = new Vector3[amount];
             index = 0;
-            float scale = 0.6f;
+            float scale = radius/6f;
                 float sideAmount = (float) Math.pow(amount,1/3f);
                 /*
                 for (int i = (int) Math.ceil(-sideAmount/2); i <= (int) Math.floor(sideAmount/2)-1; i++) {
@@ -44,7 +44,7 @@ public class Breakdown {
                             if (index < amount) {
 
                                 Vector3 temporaryCoordinate = new Vector3(((float) i *scale)+centre.x+random.nextFloat(-scale/2,scale/2),((float) j *scale)+centre.y+random.nextFloat(-scale/2,scale/2),((float) k *scale)+centre.z+random.nextFloat(-scale/2,scale/2));
-                                if(Math.pow(temporaryCoordinate.cpy().sub(centre).len(),2)< Math.pow(radius,2)){
+                                if(Math.pow(temporaryCoordinate.cpy().sub(centre).len(),2)< Math.pow(radius-0.2f,2)){
                                     coordinates[index] = temporaryCoordinate.cpy();
                                     index++;
                                 }

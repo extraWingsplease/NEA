@@ -136,6 +136,7 @@ public class ForceHandler {
                     if (a.collision) {
                         if (random.nextInt(0, 100) >= 90) {
                             v.setCollision(false);
+                            v.setDelete(true);
                             v.startDeletiontimer(5);
                             if (random.nextInt(0, 100) >= 90) {
                                 a.addMassWRADIUS(v.getMass());
@@ -148,6 +149,7 @@ public class ForceHandler {
                     } else {
                         if (random.nextFloat() >= 0.997f) {
                             v.startDeletiontimer(5);
+                            v.setDelete(true);
                             if (random.nextInt(0, 100) >= 90) {
                                 a.addMassWDENSITY(v.getMass());
                             }
@@ -160,11 +162,11 @@ public class ForceHandler {
                     }
                 }
                 breakoff = false;
-                if(!v.getBreakaway() && !a.getBreakaway() && a.getMass() > v.getMass()){
+                if(!v.getBreakaway() && !a.getBreakaway() && (a.getMass()*2 > v.getMass())){
 
                     breakoff = true;
                 }
-                if (Math.pow(magnitude,2) <= Math.pow(radii,2) && a.collision && v.collision) {
+                if (Math.pow(magnitude,2) <= Math.pow(radii,2) && (a.collision|| breakDownObjects.contains(a)) && v.collision ) {
                     //System.out.println("COLLISION");
                     if(breakoff){
                         breakDownObjects.add(v);
@@ -177,11 +179,11 @@ public class ForceHandler {
                         float massA = a.getMass();
                         float massV = v.getMass();
 
-                        float impulseScalar = -(1.99f) * velocityAlongNormal;
+                        float impulseScalar = -(1.5f) * velocityAlongNormal;
                         impulseScalar *= 1 / (1 / massA + 1 / massV);
                         Vector3 impulse = normal.cpy().scl(impulseScalar);
 
-                        a.getVelocity().add(impulse.cpy().scl(1 / massA));
+                        //a.getVelocity().add(impulse.cpy().scl(1 / massA));
                         v.getVelocity().sub(impulse.cpy().scl(1 / massV));
                         float overlap = radii - magnitude;
                         float allowance = 0.01f;
