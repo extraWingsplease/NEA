@@ -1,6 +1,7 @@
 package io.github.some_example_name;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.environment.*;
 import com.badlogic.gdx.math.Vector3;
@@ -121,7 +122,7 @@ public class Object {
         - Similar in behaviour to stars, just way less massive
         - Collisions off
          */
-        else if(getDensity()<=10){
+        else if(getDensity()<=10 && radius >= 16){
             category = 3;
         }
 
@@ -258,12 +259,12 @@ public class Object {
     }
     public void refreshmodel(ModelBuilder modelBuilder){
         model.dispose();
-        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,40,40, 0,material,Usage.Position | Usage.Normal);
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
     }
 
     public void draw(ModelBatch modelBatch){
-        instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(1)));
+        instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         modelBatch.render(instance);
         //instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         //modelBatch.render(instance);

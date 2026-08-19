@@ -110,11 +110,11 @@ public class Main implements ApplicationListener {
         breakDownObjects = new ArrayList<Object>();
 
 
-        testball = new Object(10, 100, 2000,0,90, 0f,0f,0,modelBuilder, false);
-        testball2 = new Object(100, 200, 200,0,-1070, 0,0,0,modelBuilder, false);
-        testball3 = new Object(10, 100, 200,0,2000, 0f,0f,0,modelBuilder, false);
+        testball = new Object(1000, 1, 0,0,0, 0,0f,0,modelBuilder, false);
+        testball2 = new Object(10, 16, 8000,0,0, 0,0,0.5f,modelBuilder, false);
+        testball3 = new Object(9.5f, 4, 10000,0,0, 0f,0f,0.5f,modelBuilder, false);
         testball4 = new Object(280000000, (float) 1 /15000, 1E10F,0,0, 0f,0f,0,modelBuilder, false);
-        testball5 = new Object(300, 300, 400,0,0, 0f,0f,0,modelBuilder, false);
+        testball5 = new Object(2.7f, 4, 8000,0,50, 0.03f,0f,0.5f,modelBuilder, false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
@@ -123,6 +123,8 @@ public class Main implements ApplicationListener {
         for (Object object : objects) {
             object.assignCategory();
             object.assignProperties(modelBuilder);
+            object.refreshmodel(modelBuilder);
+            System.out.println(testball5.category);
 
         }
 
@@ -310,6 +312,7 @@ public class Main implements ApplicationListener {
             }
 
             modelBatch.end();
+
 
         }
     }

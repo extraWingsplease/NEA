@@ -179,7 +179,7 @@ public class ForceHandler {
                         float massA = a.getMass();
                         float massV = v.getMass();
 
-                        float impulseScalar = -(1.5f) * velocityAlongNormal;
+                        float impulseScalar = -(random.nextFloat(1.2f,1.5f)) * velocityAlongNormal;
                         impulseScalar *= 1 / (1 / massA + 1 / massV);
                         Vector3 impulse = normal.cpy().scl(impulseScalar);
 
