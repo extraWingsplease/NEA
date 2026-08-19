@@ -114,7 +114,7 @@ public class Main implements ApplicationListener {
         testball2 = new Object(100, 200, 200,0,-1070, 0,0,0,modelBuilder, false);
         testball3 = new Object(10, 100, 200,0,2000, 0f,0f,0,modelBuilder, false);
         testball4 = new Object(280000000, (float) 1 /15000, 1E10F,0,0, 0f,0f,0,modelBuilder, false);
-        testball5 = new Object(280, 110, 400,0,0, 0f,0f,0,modelBuilder, false);
+        testball5 = new Object(300, 300, 400,0,0, 0f,0f,0,modelBuilder, false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
@@ -123,7 +123,7 @@ public class Main implements ApplicationListener {
         for (Object object : objects) {
             object.assignCategory();
             object.assignProperties(modelBuilder);
-            System.out.println(testball2.schwarzschildRadius);
+
         }
 
 
@@ -305,12 +305,12 @@ public class Main implements ApplicationListener {
          */
 
 
-            for (int i = 0; i < objects.size(); i++) {
-                objects.get(i).draw(modelBatch);
-                objects.get(i).draw(modelBatch);
+            for (Object object : objects) {
+                object.draw(modelBatch);
             }
 
             modelBatch.end();
+
         }
     }
 

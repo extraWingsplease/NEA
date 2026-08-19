@@ -1,5 +1,6 @@
 package io.github.some_example_name;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.environment.*;
 import com.badlogic.gdx.math.Vector3;
@@ -47,7 +48,7 @@ public class Object {
         velocity = new Vector3(startVX, startVY, startVZ);
         resultantForce = new Vector3(0, 0,0);
         acceleration = new Vector3(0, 0,0);
-        material = new Material(ColorAttribute.createSpecular(1f,1f,1f,1f));
+        material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
         model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
@@ -257,13 +258,13 @@ public class Object {
     }
     public void refreshmodel(ModelBuilder modelBuilder){
         model.dispose();
-        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,200,200, 0,material,Usage.Position | Usage.Normal);
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,40,40, 0,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
     }
 
     public void draw(ModelBatch modelBatch){
         instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(1)));
-        modelBatch.render(instance,environment);
+        modelBatch.render(instance);
         //instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         //modelBatch.render(instance);
     }
