@@ -1,17 +1,17 @@
 package io.github.some_example_name;
 
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.environment.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 import java.util.Date;
 
 import java.util.Random;
+import java.util.Vector;
 
 public class Object {
     float radius;
@@ -23,6 +23,8 @@ public class Object {
     Vector3 acceleration;
     Model model;
     ModelInstance instance;
+    Environment environment;
+    Texture texture;
     Boolean breakaway;
     Boolean collision;
     Date time;
@@ -45,10 +47,12 @@ public class Object {
         velocity = new Vector3(startVX, startVY, startVZ);
         resultantForce = new Vector3(0, 0,0);
         acceleration = new Vector3(0, 0,0);
-        material = new Material(ColorAttribute.createDiffuse(1f,1f,1f,1f));
+        material = new Material(ColorAttribute.createSpecular(1f,1f,1f,1f));
         model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
+        environment = new Environment();
+        environment.add(new PointLight().set(1f,1f,1f, new Vector3(0,0,1000), 1000000f));
         collision = true;
         time = new Date();
         currenttime = System.currentTimeMillis();
@@ -253,13 +257,13 @@ public class Object {
     }
     public void refreshmodel(ModelBuilder modelBuilder){
         model.dispose();
-        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
+        model = modelBuilder.createSphere(radius*2,radius*2,radius*2,200,200, 0,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
     }
 
     public void draw(ModelBatch modelBatch){
         instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(1)));
-        modelBatch.render(instance);
+        modelBatch.render(instance,environment);
         //instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         //modelBatch.render(instance);
     }

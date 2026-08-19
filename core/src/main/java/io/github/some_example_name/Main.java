@@ -4,18 +4,16 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -49,6 +47,8 @@ public class Main implements ApplicationListener {
     ModelInstance sphereInstance;
     ModelBuilder modelBuilder;
     ModelBatch modelBatch;
+    Environment environment;
+    Texture texture;
     Model model;
     Vector3 camPosition;
     Vector3 camDirection;
@@ -63,6 +63,7 @@ public class Main implements ApplicationListener {
     Object testball2;
     Object testball3;
     Object testball4;
+    Object testball5;
     ArrayList<Object> testballs;
     ArrayList<Object> objects;
     ArrayList<Object> breakDownObjects;
@@ -92,6 +93,8 @@ public class Main implements ApplicationListener {
         vertical = new Vector3(0,1,0);
         boolean locked = false;
         modelBuilder = new ModelBuilder();        models = new ArrayList<Model>();
+        environment = new Environment();
+        environment.add(new PointLight().set(1f,1f,1f, new Vector3(0,0,0), 1f));
         modelInstances = new ArrayList<ModelInstance>();
         trueSpeed = 1;
         chunksize = 10;
@@ -108,13 +111,15 @@ public class Main implements ApplicationListener {
 
 
         testball = new Object(10, 100, 2000,0,90, 0f,0f,0,modelBuilder, false);
-        testball2 = new Object(1000, 1, 200,0,-70, 0,0,0,modelBuilder, false);
+        testball2 = new Object(100, 200, 200,0,-1070, 0,0,0,modelBuilder, false);
         testball3 = new Object(10, 100, 200,0,2000, 0f,0f,0,modelBuilder, false);
         testball4 = new Object(280000000, (float) 1 /15000, 1E10F,0,0, 0f,0f,0,modelBuilder, false);
+        testball5 = new Object(280, 110, 400,0,0, 0f,0f,0,modelBuilder, false);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
-        objects.add(testball4);
+        //objects.add(testball4);
+        objects.add(testball5);
         for (Object object : objects) {
             object.assignCategory();
             object.assignProperties(modelBuilder);
@@ -204,6 +209,7 @@ public class Main implements ApplicationListener {
     @Override
     public void render() {
         if (!gamerunning) {
+
 
             //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             forces.refreshArray(objects);
