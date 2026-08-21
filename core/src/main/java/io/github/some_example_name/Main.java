@@ -3,10 +3,15 @@ package io.github.some_example_name;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
+import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.Color;
@@ -75,11 +80,16 @@ public class Main implements ApplicationListener {
     float timeSpeed;
     float previousspeed;
     boolean gamerunning;
+    ParticleSystem particleSystem;
+    PointSpriteParticleBatch pointSpriteBatch;
+    ParticleEffect particleEffect;
 
 
     @Override
     public void create() {
+        particleSystem = new ParticleSystem();
         modelBatch = new ModelBatch();
+        environment = new Environment();
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camPosition = new Vector3(-2000,10,10);
         camera.position.set(camPosition);
@@ -109,6 +119,9 @@ public class Main implements ApplicationListener {
         gamerunning = false;
         breakDownObjects = new ArrayList<Object>();
 
+        particleEffect = new ParticleEffect();
+        particleEffect.load(Gdx.files.internal("Test Glow Particle"), Gdx.files.internal(""));
+
 
         testball = new Object(1000, 1, 0,0,0, 0,0f,0,modelBuilder, false);
         testball2 = new Object(10, 16, 8000,0,0, 0,0,0.5f,modelBuilder, false);
@@ -121,10 +134,12 @@ public class Main implements ApplicationListener {
         //objects.add(testball4);
         objects.add(testball5);
         for (Object object : objects) {
+
             object.assignCategory();
-            object.assignProperties(modelBuilder);
+            System.out.println(testball.category);
+            object.assignProperties(modelBuilder,environment);
             object.refreshmodel(modelBuilder);
-            System.out.println(testball5.category);
+
 
         }
 
@@ -219,6 +234,7 @@ public class Main implements ApplicationListener {
             for (Object object : objects) {
                 object.advance(timeSpeed,modelBuilder);
                 chunkz.positionOnGrid(object);
+                object.assignProperties(modelBuilder,environment);
                 //System.out.println(object.getCollision());
                 //System.out.println(object.getMass());
 
@@ -308,8 +324,9 @@ public class Main implements ApplicationListener {
 
 
             for (Object object : objects) {
-                object.draw(modelBatch);
+                object.draw(modelBatch,environment);
             }
+            //environment.clear();
 
             modelBatch.end();
 

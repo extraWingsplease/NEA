@@ -53,8 +53,8 @@ public class Object {
         model = modelBuilder.createSphere(radius*2,radius*2,radius*2,20,20,material,Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
         instance.transform.setToTranslation(location);
-        environment = new Environment();
-        environment.add(new PointLight().set(1f,1f,1f, new Vector3(0,0,1000), 1000000f));
+
+        //environment.add(new PointLight().set(1f, 1f, 1f, new Vector3(0,0,0), 100000000f));
         collision = true;
         time = new Date();
         currenttime = System.currentTimeMillis();
@@ -139,7 +139,7 @@ public class Object {
     }
     public int getCategory() {return category;}
 
-    public void assignProperties(ModelBuilder modelBuilder){
+    public void assignProperties(ModelBuilder modelBuilder, Environment environment){
         if(category == 0){
             collision = false;
             material = new Material(ColorAttribute.createDiffuse(0f,0f,0f,1f));
@@ -158,16 +158,18 @@ public class Object {
                 colourScale = 6;
             }
             if(colourScale >4) {
-                material = new Material(ColorAttribute.createDiffuse(1f, 3- colourScale/2, 0f, 1f));
-
+                material = new Material(ColorAttribute.createDiffuse(1f, 3- colourScale/2, 0f, random.nextInt(0,255)));
+                environment.add(new PointLight().set(1f, 3- colourScale/2, 0f, location.cpy(), 100000000f));
 
             }
             else if(colourScale >1){
-                material = new Material(ColorAttribute.createDiffuse(1f, 1f, 1f-(colourScale-1)/3, 1f));
+                material = new Material(ColorAttribute.createDiffuse(1f, 1f, 1f-(colourScale-1)/3, random.nextInt(0,255)));
+                environment.add(new PointLight().set(1f, 1f, 1f-(colourScale-1)/3, location.cpy(), 100000000f));
             }
 
             else{
-                material = new Material(ColorAttribute.createDiffuse(1- colourScale, 1- colourScale, 1f, 1f));
+                material = new Material(ColorAttribute.createDiffuse(1- colourScale, 1- colourScale, 0f, random.nextFloat(0,1)));
+                environment.add(new PointLight().set(1- colourScale, 1- colourScale, 1f, location.cpy(), 100000000f));
             }
             refreshmodel(modelBuilder);
         }
@@ -263,9 +265,14 @@ public class Object {
         instance = new ModelInstance(model);
     }
 
-    public void draw(ModelBatch modelBatch){
+    public void draw(ModelBatch modelBatch, Environment environment){
         instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
-        modelBatch.render(instance);
+        if(getCategory()>=0 && getCategory() <= 2) {
+            modelBatch.render(instance);
+        }
+        else{
+            modelBatch.render(instance, environment);
+        }
         //instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         //modelBatch.render(instance);
     }
