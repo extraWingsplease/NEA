@@ -57,6 +57,10 @@ public class Main implements ApplicationListener {
     Model model;
     Vector3 camPosition;
     Vector3 camDirection;
+    Boolean wayPoint;
+    Vector3 wayPointPosition;
+    Vector3 wayPointDirection;
+    float wayPointSpeed;
     ArrayList<Model> models;
     Date time;
 
@@ -120,6 +124,10 @@ public class Main implements ApplicationListener {
         previousspeed = timeSpeed;
         gamerunning = false;
         breakDownObjects = new ArrayList<Object>();
+        wayPoint = false;
+        wayPointPosition = new Vector3(0,0,0);
+        wayPointDirection = new Vector3(0,0,0);
+        wayPointSpeed = trueSpeed;
 
         particleEffect = new ParticleEffect();
         //particleEffect.load(Gdx.files.internal("Test Glow Particle"), Gdx.files.internal(""));
@@ -197,8 +205,18 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
             camPosition.sub(vertical.cpy().nor().scl(speed));
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.U)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
             System.out.println(camDirection);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
+            if (camera.fieldOfView <= 100) {
+                camera.fieldOfView += 1;
+            }
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            if (camera.fieldOfView >= 20) {
+                camera.fieldOfView -= 1;
+            }
         }
 
 
@@ -329,7 +347,20 @@ public class Main implements ApplicationListener {
                 obj.assignCategory();
                 obj.assignProperties(modelBuilder,environment);
             }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.APOSTROPHE)) {
+                if(wayPoint){
+                    camPosition.set(wayPointPosition.cpy());
+                    camDirection.set(wayPointDirection.cpy());
+                    mouse.currentSpeedLevel = (int) wayPointSpeed;
+                }
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SEMICOLON)) {
+                    wayPointPosition.set(camPosition.cpy());
+                    wayPointDirection.set(camDirection.cpy());
+                    wayPointSpeed = mouse.currentSpeedLevel;
+                    wayPoint = true;
 
+            }
             float apparentspeed = (float) (trueSpeed * Math.exp(0.35 * mouse.currentSpeedLevel));
             doCameraMovement(camera, apparentspeed, 0.15f, locked);
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
