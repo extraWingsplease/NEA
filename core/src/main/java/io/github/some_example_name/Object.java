@@ -39,8 +39,11 @@ public class Object {
     Material material;
     float schwarzschildRadius;
     int category;
+    private float r;
+    private float g;
+    private float b;
     Random random;
-    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw){
+    public Object(float rad, float density, float startX, float startY, float startZ, float startVX, float startVY, float startVZ, ModelBuilder modelBuilder, Boolean breakw, float red,float green, float blue){
         breakaway = breakw;
         radius = (float) rad;
         this.density = density;
@@ -65,6 +68,24 @@ public class Object {
         delete = false;
         timeSinceLastCollision = -1;
         random = new Random();
+        if( red == -1) {
+            r = random.nextFloat();
+        }
+        else{
+            r = red;
+        }
+        if( green == -1) {
+            g = random.nextFloat();
+        }
+        else{
+            g = green;
+        }
+        if( blue == -1) {
+            b = random.nextFloat();
+        }
+        else{
+            b = blue;
+        }
 
         category = 4;
     }
@@ -72,7 +93,7 @@ public class Object {
     public void setRadius(float radius) {this.radius = radius;}
 
     public void assignCategory(){
-        schwarzschildRadius = (float) ((0.0000006743*2*getMass())/Math.pow(173.9848013,2));
+        schwarzschildRadius = (float) ((0.0000006743*2*getMass())/Math.pow(3000,2));
         //System.out.println(schwarzschildRadius);
         /*
         -1. TEMPORARY BREAKAWAY OBJECT
@@ -102,7 +123,7 @@ public class Object {
         - Size around a small city
         - Emit incredibly bright light
          */
-        else if((getDensity() >= 2.6E14) && (getDensity() <= 4.1E14)){
+        else if((density >= 2.6E14) && (density <= 4.1E14)){
             category = 1;
         }
 
@@ -142,13 +163,15 @@ public class Object {
     public void assignProperties(ModelBuilder modelBuilder, Environment environment){
         if(category == 0){
             collision = false;
-            material = new Material(ColorAttribute.createDiffuse(0f,0f,0f,1f));
-            refreshmodel(modelBuilder);
+            r = 0;
+            g = 0;
+            b = 0;
         }
         if(category == 1){
             collision = true;
-            material = new Material(ColorAttribute.createDiffuse(0.9f,0.9f,1f,1f));
-            refreshmodel(modelBuilder);
+            r = 0.9f;
+            g = 0.9f;
+            b = 1;
         }
         if(category == 2){
             collision = false;
@@ -158,20 +181,24 @@ public class Object {
                 colourScale = 6;
             }
             if(colourScale >4) {
-                material = new Material(ColorAttribute.createDiffuse(1f, 3- colourScale/2, 0f, random.nextInt(0,255)));
-                environment.add(new PointLight().set(1f, 3- colourScale/2, 0f, location.cpy(), 100000000f));
+                r= 1;
+                g = 3-colourScale/2;
+                b = 0;
+
 
             }
             else if(colourScale >1){
-                material = new Material(ColorAttribute.createDiffuse(1f, 1f, 1f-(colourScale-1)/3, random.nextInt(0,255)));
-                environment.add(new PointLight().set(1f, 1f, 1f-(colourScale-1)/3, location.cpy(), 100000000f));
+                r = 1;
+                g = 1;
+                b = 1f-(colourScale-1)/3;
             }
 
             else{
-                material = new Material(ColorAttribute.createDiffuse(1- colourScale, 1- colourScale, 0f, random.nextFloat(0,1)));
-                environment.add(new PointLight().set(1- colourScale, 1- colourScale, 1f, location.cpy(), 100000000f));
+                r= 1- colourScale;
+                g = 1- colourScale;
+                b = 0;
             }
-            refreshmodel(modelBuilder);
+            environment.add(new PointLight().set((float) (0.8+r/5f),(float) (0.8+g/5f),(float) (0.8+b/5f), location.cpy(), 1000000f));
         }
         if(category == 3){
             collision = false;
@@ -179,6 +206,8 @@ public class Object {
         if(category == 4){
             collision = true;
         }
+        material = new Material(ColorAttribute.createDiffuse(r,g,b,1f));
+        refreshmodel(modelBuilder);
 
     }
 
@@ -221,6 +250,15 @@ public class Object {
 
     public Boolean getDelete() {return delete;}
     public void setDelete(Boolean delete) {this.delete = delete;}
+
+    public float getR() {return r;}
+    public void setR(float r) {this.r = r;}
+
+    public float getG() {return g;}
+    public void setG(float g) {this.g = g;}
+
+    public float getB() {return b;}
+    public void setB(float b) {this.b = b;}
 
     public float getTimeSinceLastCollision() {return timeSinceLastCollision;}
     public void setTimeSinceLastCollision(float timeSinceLastCollision) {this.timeSinceLastCollision = timeSinceLastCollision;}
@@ -267,7 +305,7 @@ public class Object {
 
     public void draw(ModelBatch modelBatch, Environment environment){
         instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
-        if(getCategory()>=0 && getCategory() <= 2) {
+        if(getCategory() >=0 && getCategory() <= 2) {
             modelBatch.render(instance);
         }
         else{

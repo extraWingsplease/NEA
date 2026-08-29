@@ -118,7 +118,7 @@ public class ForceHandler {
         breakDownObjects.clear();
         ArrayList<Object> objects = new ArrayList<Object>();
         for(int i=0; i<REALobjects.size(); i++){
-            if(REALobjects.get(i).getCollision()){
+            if(REALobjects.get(i).getCollision() || REALobjects.get(i).getCategory() == 3){
                 objects.add(REALobjects.get(i));
             }
         }
@@ -131,31 +131,31 @@ public class ForceHandler {
                 Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
                 float magnitude = distance.len();
                 float radii = v.getRadius() + a.getRadius();
-                if(v.getBreakaway() && !a.getBreakaway() && Math.pow(magnitude,2) <= Math.pow(radii,2)){
+                if(!v.getBreakaway() && a.getBreakaway() && Math.pow(magnitude,2) <= Math.pow(radii,2)){
                     //System.out.println("collision");
-                    if (a.collision) {
+                    if (v.collision) {
                         if (random.nextInt(0, 100) >= 90) {
-                            v.setCollision(false);
-                            v.setDelete(true);
-                            v.startDeletiontimer(5);
+                            a.setCollision(false);
+                            a.setDelete(true);
+                            a.startDeletiontimer(5);
                             if (random.nextInt(0, 100) >= 90) {
-                                a.addMassWRADIUS(v.getMass());
-                                a.refreshmodel(modelBuilder);
+                                v.addMassWRADIUS(a.getMass());
+                                v.refreshmodel(modelBuilder);
                             }
                             else{
-                                a.addMassWDENSITY(v.getMass());
+                                v.addMassWDENSITY(a.getMass());
                             }
                         }
                     } else {
-                        if (random.nextFloat() >= 0.997f) {
-                            v.startDeletiontimer(5);
-                            v.setDelete(true);
+                        if (random.nextFloat() >= 0.9f) {
+                            a.startDeletiontimer(5);
+                            a.setDelete(true);
                             if (random.nextInt(0, 100) >= 90) {
-                                a.addMassWDENSITY(v.getMass());
+                                v.addMassWDENSITY(a.getMass());
                             }
                             else{
-                                a.addMassWRADIUS(v.getMass());
-                                a.refreshmodel(modelBuilder);
+                                v.addMassWRADIUS(a.getMass());
+                                v.refreshmodel(modelBuilder);
                             }
 
                         }
@@ -165,6 +165,16 @@ public class ForceHandler {
                 if(!v.getBreakaway() && !a.getBreakaway() && (a.getMass()*2 > v.getMass())){
 
                     breakoff = true;
+                }
+                if((v.getCategory() == 0 && (v.getCategory() != 0) && (Math.pow(magnitude, 2) <= (Math.pow(radii, 2) * 2)))){
+                    if(breakoff){
+                        breakDownObjects.add(a);
+                    }
+                }
+                if((v.getCategory() == 2 && (a.getCategory() >= 3) && (Math.pow(magnitude, 2) <= (Math.pow(v.getRadius(), 2))))){
+                    System.out.println("hello");
+                    breakDownObjects.add(a);
+                    a.setDelete(true);
                 }
                 if (Math.pow(magnitude,2) <= Math.pow(radii,2) && (a.collision|| breakDownObjects.contains(a)) && v.collision ) {
                     //System.out.println("COLLISION");

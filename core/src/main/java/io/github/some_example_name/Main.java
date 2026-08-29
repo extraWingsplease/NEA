@@ -38,7 +38,7 @@ import java.util.ArrayList;
 /*
 CONSTANTS/NOTABLE THINGS FOR THIS SIMULATION:
 Gravitational constant - 0.0000006743
-Speed of light - 173.9848013
+Speed of light - 3000
 Density of the sun - 1
 Radius of the sun - 1000
 all calculations are done relative to the sun's density and radius
@@ -69,6 +69,8 @@ public class Main implements ApplicationListener {
     Object testball3;
     Object testball4;
     Object testball5;
+    Object testball6;
+    Object testball7;
     ArrayList<Object> testballs;
     ArrayList<Object> objects;
     ArrayList<Object> breakDownObjects;
@@ -91,11 +93,11 @@ public class Main implements ApplicationListener {
         modelBatch = new ModelBatch();
         environment = new Environment();
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camPosition = new Vector3(-2000,10,10);
+        camPosition = new Vector3(-1,0,0);
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
-        camera.lookAt(100,10,10);
+        camera.lookAt(0,0,0);
         camDirection = camera.direction.cpy().nor();
         camera.near = 0.1f;
         camera.far = 100000000f;
@@ -120,25 +122,32 @@ public class Main implements ApplicationListener {
         breakDownObjects = new ArrayList<Object>();
 
         particleEffect = new ParticleEffect();
-        particleEffect.load(Gdx.files.internal("Test Glow Particle"), Gdx.files.internal(""));
+        //particleEffect.load(Gdx.files.internal("Test Glow Particle"), Gdx.files.internal(""));
 
 
-        testball = new Object(1000, 1, 0,0,0, 0,0f,0,modelBuilder, false);
-        testball2 = new Object(10, 16, 8000,0,0, 0,0,0.5f,modelBuilder, false);
-        testball3 = new Object(9.5f, 4, 10000,0,0, 0f,0f,0.5f,modelBuilder, false);
-        testball4 = new Object(280000000, (float) 1 /15000, 1E10F,0,0, 0f,0f,0,modelBuilder, false);
-        testball5 = new Object(2.7f, 4, 8000,0,50, 0.03f,0f,0.5f,modelBuilder, false);
+        testball = new Object(1000, 1, 0,0,0, 0,0f,0,modelBuilder, false, -1, -1, -1);
+        testball2 = new Object(10, 16, 8000,0,0, 0,0,0.5f,modelBuilder, false, -1, -1, -1);
+        testball3 = new Object(9.5f, 4, 10000,0,0, 0f,0f,0.5f,modelBuilder, false, -1, -1, -1);
+        testball4 = new Object(2.7f, 4, 8000,0,50, 0.03f,0f,0.5f,modelBuilder, false, 0.5f, 0.5f, 0.5f);
+        testball5 = new Object(1/70f, 2.7E14F, 0,0,0, 0,0f,0,modelBuilder, false, -1, -1, -1);
+        testball6 = new Object(1000f, 2.7E11F, 0,0,-10000000, 0,0f,0,modelBuilder, false, -1, -1, -1);
+        testball7 = new Object(10, 4, 10000,0,100, 0,0f,0,modelBuilder, false, -1, -1, -1);
         objects.add(testball);
         objects.add(testball2);
         objects.add(testball3);
-        //objects.add(testball4);
-        objects.add(testball5);
+        objects.add(testball4);
+        objects.add(testball7);
+        //objects.add(testball5);
+        //objects.add(testball6);
+        objects.add(testball7);
+
         for (Object object : objects) {
 
             object.assignCategory();
-            System.out.println(testball.category);
             object.assignProperties(modelBuilder,environment);
             object.refreshmodel(modelBuilder);
+            System.out.println(object.schwarzschildRadius);
+            System.out.println(object.getR() + object.getG() + object.getB());
 
 
         }
@@ -220,7 +229,11 @@ public class Main implements ApplicationListener {
         breakdown = new Breakdown(object.getLocation(), object.getRadius());
         for(int i =0; i< breakdown.getAmount(); i++) {
             //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
-            objects.add(new Object(random.nextFloat((float) Math.pow(object.getRadius()/60,1/2f), (float) (object.getRadius()/7.5)), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true));
+            Object obj = new Object(random.nextFloat((float) Math.pow(object.getRadius()/60,1/2f), (float) (object.getRadius()/7.5)), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true, (float) (object.getR() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getB() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getG() * 0.95 + random.nextFloat(0,0.05f)));
+
+            objects.add(obj);
+            obj.assignCategory();
+            obj.assignProperties(modelBuilder,environment);
         }
     }
     @Override
@@ -234,7 +247,9 @@ public class Main implements ApplicationListener {
             for (Object object : objects) {
                 object.advance(timeSpeed,modelBuilder);
                 chunkz.positionOnGrid(object);
+                if(object.getCategory() != -1){
                 object.assignProperties(modelBuilder,environment);
+                }
                 //System.out.println(object.getCollision());
                 //System.out.println(object.getMass());
 
@@ -308,6 +323,13 @@ public class Main implements ApplicationListener {
                     timeSpeed = previousspeed;
                 }
             }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+                Object obj = new Object(random.nextFloat(2,20f), 4, camera.position.x + camera.direction.cpy().nor().scl(100).x,camera.position.y + camera.direction.cpy().nor().scl(100).y,camera.position.z + camera.direction.cpy().nor().scl(100).z, 0,0,0f,modelBuilder, false, -1, -1, -1);
+                objects.add(obj);
+                obj.assignCategory();
+                obj.assignProperties(modelBuilder,environment);
+            }
+
             float apparentspeed = (float) (trueSpeed * Math.exp(0.35 * mouse.currentSpeedLevel));
             doCameraMovement(camera, apparentspeed, 0.15f, locked);
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
