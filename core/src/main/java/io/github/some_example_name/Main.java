@@ -247,7 +247,7 @@ public class Main implements ApplicationListener {
         breakdown = new Breakdown(object.getLocation(), object.getRadius());
         for(int i =0; i< breakdown.getAmount(); i++) {
             //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
-            Object obj = new Object(random.nextFloat((float) Math.pow(object.getRadius()/60,1/2f), (float) (object.getRadius()/7.5)), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true, (float) (object.getR() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getB() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getG() * 0.95 + random.nextFloat(0,0.05f)));
+            Object obj = new Object(random.nextFloat((float) Math.pow(object.getRadius()/60,1/2f), (float) (object.getRadius()/7.5)), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true, (float) (object.getR() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getG() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getB() * 0.95 + random.nextFloat(0,0.05f)));
 
             objects.add(obj);
             obj.assignCategory();
