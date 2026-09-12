@@ -1,7 +1,5 @@
 package io.github.some_example_name;
-
 import com.badlogic.gdx.math.Vector3;
-
 import java.util.ArrayList;
 import java.util.Random;
 

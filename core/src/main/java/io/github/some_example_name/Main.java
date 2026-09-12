@@ -3,37 +3,20 @@ package io.github.some_example_name;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import java.util.Date;
 
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.util.EventListener;
-import java.util.List;
-import java.util.Random;
-import com.badlogic.gdx.InputProcessor;
-import java.util.EventListener.*;
-import com.badlogic.gdx.InputAdapter;
-
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 
 /*
 CONSTANTS/NOTABLE THINGS FOR THIS SIMULATION:
@@ -148,6 +131,10 @@ public class Main implements ApplicationListener {
         //objects.add(testball5);
         //objects.add(testball6);
         objects.add(testball7);
+        //File file = new File(".");
+        //for(String fileNames : file.list()) System.out.println(fileNames);
+
+
 
         for (Object object : objects) {
 
@@ -156,9 +143,8 @@ public class Main implements ApplicationListener {
             object.refreshmodel(modelBuilder);
             System.out.println(object.schwarzschildRadius);
             System.out.println(object.getR() + object.getG() + object.getB());
-
-
         }
+
 
 
 
@@ -206,7 +192,15 @@ public class Main implements ApplicationListener {
             camPosition.sub(vertical.cpy().nor().scl(speed));
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
+            System.out.println(camPosition);
             System.out.println(camDirection);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
+            try {
+                loadWorld("LoadTest");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         if(Gdx.input.isKeyPressed(Input.Keys.UP)){
             if (camera.fieldOfView <= 100) {
@@ -248,16 +242,51 @@ public class Main implements ApplicationListener {
         for(int i =0; i< breakdown.getAmount(); i++) {
             //objects.add(new Object(random.nextFloat(0.1f,0.3f), 100, 100, 10, 10, 0, 0, 0, modelBuilder, true));
             Object obj = new Object(random.nextFloat((float) Math.pow(object.getRadius()/60,1/2f), (float) (object.getRadius()/7.5)), object.getDensity(), breakdown.getCoordinates()[i].x, breakdown.getCoordinates()[i].y, breakdown.getCoordinates()[i].z, object.getVelocity().x, object.getVelocity().y, object.getVelocity().z, modelBuilder, true, (float) (object.getR() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getG() * 0.95 + random.nextFloat(0,0.05f)), (float) (object.getB() * 0.95 + random.nextFloat(0,0.05f)));
-
             objects.add(obj);
             obj.assignCategory();
             obj.assignProperties(modelBuilder,environment);
         }
     }
+    public void loadWorld(String fileName) throws IOException {
+        float Oradius;
+        float Odensity;
+        float Ox;
+        float Oy;
+        float Oz;
+        float OVx;
+        float OVy;
+        float OVz;
+        float Obreakaway;
+        float Or;
+        float Og;
+        float Ob;
+        FileReader fileReader = new FileReader(fileName);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        List<String> playerInfo;
+        String playerInfoString;
+        playerInfoString = bufferedReader.readLine();
+        playerInfo = Arrays.asList(playerInfoString.split(","));
+        System.out.println(playerInfo);
+        float x = Float.parseFloat(playerInfo.get(0));
+        float y = Float.parseFloat(playerInfo.get(1));
+        float z = Float.parseFloat(playerInfo.get(2));
+        float Lx = Float.parseFloat(playerInfo.get(3));
+        float Ly = Float.parseFloat(playerInfo.get(4));
+        float Lz = Float.parseFloat(playerInfo.get(5));
+        Vector3 newPosition = new Vector3(x,y,z);
+        Vector3 newDirection = new Vector3(Lx,Ly,Lz).nor();
+        camPosition.set(newPosition);
+        camDirection.set(newDirection.cpy().nor());
+        System.out.println(bufferedReader.lines().count());
+        for(int i=0; i<bufferedReader.lines().count(); i++){
+            List<String> nextObject;
+            String nextObjectInfo = bufferedReader.readLine();
+            nextObject = Arrays.asList(nextObjectInfo.split(","));
+        }
+    }
     @Override
     public void render() {
         if (!gamerunning) {
-
 
             //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             forces.refreshArray(objects);
