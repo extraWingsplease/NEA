@@ -27,7 +27,7 @@ Radius of the sun - 1000
 all calculations are done relative to the sun's density and radius
  */
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+/** {@link ApplicationListener} implementation shared by all platforms. */
 public class Main implements ApplicationListener {
     PerspectiveCamera camera;
     Vector3 vertical;
@@ -172,7 +172,7 @@ public class Main implements ApplicationListener {
         // Resize your application here. The parameters represent the new window size.
     }
 
-    public void doCameraMovement(PerspectiveCamera camera, float speed, float sensitivity, boolean locked){
+    public void doCameraMovement(PerspectiveCamera camera, float speed, float sensitivity, boolean locked) throws IOException {
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
             camPosition.add(camDirection.cpy().nor().scl(speed));
         }
@@ -198,6 +198,13 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
             try {
                 loadWorld("LoadTest");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
+            try {
+                saveWorld("SaveTest");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -248,6 +255,7 @@ public class Main implements ApplicationListener {
         }
     }
     public void loadWorld(String fileName) throws IOException {
+        objects.clear();
         float Oradius;
         float Odensity;
         float Ox;
@@ -256,16 +264,21 @@ public class Main implements ApplicationListener {
         float OVx;
         float OVy;
         float OVz;
-        float Obreakaway;
+        float Obreak;
+        boolean Obreakaway = true;
         float Or;
         float Og;
         float Ob;
         FileReader fileReader = new FileReader(fileName);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
+        int count = (int) bufferedReader.lines().count();
+        fileReader = new FileReader(fileName);
+        bufferedReader = new BufferedReader(fileReader);
         List<String> playerInfo;
         String playerInfoString;
         playerInfoString = bufferedReader.readLine();
         playerInfo = Arrays.asList(playerInfoString.split(","));
+        System.out.println(playerInfoString);
         System.out.println(playerInfo);
         float x = Float.parseFloat(playerInfo.get(0));
         float y = Float.parseFloat(playerInfo.get(1));
@@ -277,12 +290,52 @@ public class Main implements ApplicationListener {
         Vector3 newDirection = new Vector3(Lx,Ly,Lz).nor();
         camPosition.set(newPosition);
         camDirection.set(newDirection.cpy().nor());
-        System.out.println(bufferedReader.lines().count());
-        for(int i=0; i<bufferedReader.lines().count(); i++){
+        for(int i=0; i<count-1; i++){
+            System.out.println("added object " + (i+1));
             List<String> nextObject;
-            String nextObjectInfo = bufferedReader.readLine();
-            nextObject = Arrays.asList(nextObjectInfo.split(","));
+            String nextObjectString;
+            nextObjectString = bufferedReader.readLine();
+            nextObject = Arrays.asList(nextObjectString.split(","));
+            Oradius = Float.parseFloat(nextObject.get(0));
+            Odensity = Float.parseFloat(nextObject.get(1));
+            Ox = Float.parseFloat(nextObject.get(2));
+            Oy = Float.parseFloat(nextObject.get(3));
+            Oz = Float.parseFloat(nextObject.get(4));
+            OVx = Float.parseFloat(nextObject.get(5));
+            OVy = Float.parseFloat(nextObject.get(6));
+            OVz = Float.parseFloat(nextObject.get(7));
+            Obreak = Float.parseFloat(nextObject.get(8));
+            if(Obreak == 0){
+                Obreakaway = false;
+            }
+            else if (Obreak == 1){
+                Obreakaway = true;
+            }
+            Or = Float.parseFloat(nextObject.get(9));
+            Og = Float.parseFloat(nextObject.get(10));
+            Ob = Float.parseFloat(nextObject.get(11));
+            objects.add(new Object(Oradius,Odensity,Ox,Oy,Oz,OVx,OVy,OVz,modelBuilder,Obreakaway,Or,Og,Ob));
         }
+        bufferedReader.close();;
+        for (Object object : objects) {
+            System.out.print("ho ");
+            object.assignCategory();
+            object.assignProperties(modelBuilder,environment);
+            object.refreshmodel(modelBuilder);
+        }
+
+    }
+    public void saveWorld(String fileName) throws IOException {
+        System.out.println("Saving...");
+        FileWriter fileWriter = new FileWriter(fileName,false);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        bufferedWriter.write(camPosition.x + "," + camPosition.y + "," + camPosition.z + "," + camDirection.x + "," + camDirection.y + "," + camDirection.z + ",");
+        for(Object object : objects) {
+            bufferedWriter.newLine();
+            bufferedWriter.write(object.getRadius() + "," + );
+
+        }
+        bufferedWriter.close();
     }
     @Override
     public void render() {
@@ -391,7 +444,11 @@ public class Main implements ApplicationListener {
 
             }
             float apparentspeed = (float) (trueSpeed * Math.exp(0.35 * mouse.currentSpeedLevel));
-            doCameraMovement(camera, apparentspeed, 0.15f, locked);
+            try {
+                doCameraMovement(camera, apparentspeed, 0.15f, locked);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
