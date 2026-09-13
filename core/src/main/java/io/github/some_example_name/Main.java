@@ -26,6 +26,32 @@ Density of the sun - 1
 Radius of the sun - 1000
 all calculations are done relative to the sun's density and radius
  */
+/*
+CURRENT KEYBINDS
+
+CTRL - lock/unlock mouse from 1st person
+
+WASD,SHIFT,SPACE - movement
+SCROLL WHEEL - control player
+U - output players current position and direction
+
+RIGHT ARROW - speed up simulation time
+LEFT ARROW - slow down simulation time
+P - pause/unpause time
+
+UP ARROW - increase FOV
+DOWN ARROW - decrease FOV
+
+SEMI COLON - set current place as a waypoint
+APOSTROPHE - warp back to placed waypoint
+
+L - load demo solar system world
+K - save current world
+I - load saved world
+
+X - create arbitrary planet
+
+ */
 
 /** {@link ApplicationListener} implementation shared by all platforms. */
 public class Main implements ApplicationListener {
