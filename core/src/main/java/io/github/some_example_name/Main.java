@@ -124,13 +124,13 @@ public class Main implements ApplicationListener {
         testball6 = new Object(1000f, 2.7E11F, 0,0,-10000000, 0,0f,0,modelBuilder, false, -1, -1, -1);
         testball7 = new Object(10, 4, 10000,0,100, 0,0f,0,modelBuilder, false, -1, -1, -1);
         objects.add(testball);
-        objects.add(testball2);
-        objects.add(testball3);
-        objects.add(testball4);
-        objects.add(testball7);
+        //objects.add(testball2);
+        //objects.add(testball3);
+        //objects.add(testball4);
+        //objects.add(testball7);
         //objects.add(testball5);
         //objects.add(testball6);
-        objects.add(testball7);
+        //objects.add(testball7);
         //File file = new File(".");
         //for(String fileNames : file.list()) System.out.println(fileNames);
 
@@ -195,20 +195,6 @@ public class Main implements ApplicationListener {
             System.out.println(camPosition);
             System.out.println(camDirection);
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
-            try {
-                loadWorld("LoadTest");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
-            try {
-                saveWorld("SaveTest");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
         if(Gdx.input.isKeyPressed(Input.Keys.UP)){
             if (camera.fieldOfView <= 100) {
                 camera.fieldOfView += 1;
@@ -255,6 +241,7 @@ public class Main implements ApplicationListener {
         }
     }
     public void loadWorld(String fileName) throws IOException {
+        System.out.println("loading...");
         objects.clear();
         float Oradius;
         float Odensity;
@@ -269,6 +256,8 @@ public class Main implements ApplicationListener {
         float Or;
         float Og;
         float Ob;
+        float Ocoll;
+        boolean Ocollision = false;
         FileReader fileReader = new FileReader(fileName);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         int count = (int) bufferedReader.lines().count();
@@ -291,7 +280,6 @@ public class Main implements ApplicationListener {
         camPosition.set(newPosition);
         camDirection.set(newDirection.cpy().nor());
         for(int i=0; i<count-1; i++){
-            System.out.println("added object " + (i+1));
             List<String> nextObject;
             String nextObjectString;
             nextObjectString = bufferedReader.readLine();
@@ -314,27 +302,46 @@ public class Main implements ApplicationListener {
             Or = Float.parseFloat(nextObject.get(9));
             Og = Float.parseFloat(nextObject.get(10));
             Ob = Float.parseFloat(nextObject.get(11));
-            objects.add(new Object(Oradius,Odensity,Ox,Oy,Oz,OVx,OVy,OVz,modelBuilder,Obreakaway,Or,Og,Ob));
+            Ocoll = Float.parseFloat(nextObject.get(12));
+            if(Ocoll == 0){
+                Ocollision = false;
+            }
+            else if (Ocoll == 1){
+                Ocollision = true;
+            }
+            Object obj = new Object(Oradius,Odensity,Ox,Oy,Oz,OVx,OVy,OVz,modelBuilder,Obreakaway,Or,Og,Ob);
+            obj.setCollision(Ocollision);
+            objects.add(obj);
+
         }
         bufferedReader.close();;
         for (Object object : objects) {
-            System.out.print("ho ");
             object.assignCategory();
             object.assignProperties(modelBuilder,environment);
             object.refreshmodel(modelBuilder);
         }
+        System.out.println("loaded with " + count + " objects");
 
     }
     public void saveWorld(String fileName) throws IOException {
         System.out.println("Saving...");
         FileWriter fileWriter = new FileWriter(fileName,false);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        bufferedWriter.write(camPosition.x + "," + camPosition.y + "," + camPosition.z + "," + camDirection.x + "," + camDirection.y + "," + camDirection.z + ",");
+        bufferedWriter.write(camPosition.x + "," + camPosition.y + "," + camPosition.z + "," + camDirection.x + "," + camDirection.y + "," + camDirection.z);
         for(Object object : objects) {
             bufferedWriter.newLine();
-            bufferedWriter.write(object.getRadius() + "," + );
+            int breakaway = 0;
+            if(object.getBreakaway()){
+                breakaway = 1;
+            }
+            int collision = 0;
+            if(object.getCollision()){
+                collision = 1;
+            }
+            bufferedWriter.write(object.getRadius() + "," + object.getDensity() + "," + object.getLocation().x + "," + object.getLocation().y + "," + object.getLocation().z + "," + object.getVelocity().x + "," + object.getVelocity().y + "," + object.getVelocity().z + "," + breakaway + "," + object.getR() + "," + object.getG() + "," + object.getB() + "," + collision);
 
         }
+        System.out.println("Saved!");
         bufferedWriter.close();
     }
     @Override
@@ -448,6 +455,27 @@ public class Main implements ApplicationListener {
                 doCameraMovement(camera, apparentspeed, 0.15f, locked);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+            if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
+                try {
+                    loadWorld("LoadTest");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
+                try {
+                    saveWorld("SaveTest");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
+                try {
+                    loadWorld("SaveTest");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
