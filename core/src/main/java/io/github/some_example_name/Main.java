@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.io.*;
@@ -199,6 +200,7 @@ public class Main implements ApplicationListener {
     }
 
     public void doCameraMovement(PerspectiveCamera camera, float speed, float sensitivity, boolean locked) throws IOException {
+        ArrayList<float> distances;
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
             camPosition.add(camDirection.cpy().nor().scl(speed));
         }
@@ -229,6 +231,24 @@ public class Main implements ApplicationListener {
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             if (camera.fieldOfView >= 20) {
                 camera.fieldOfView -= 1;
+            }
+        }
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
+            distances.clear();
+            boolean end = false;
+            for(Object object : objects) {
+                if (object.getLocation().cpy().sub(camPosition).len()<= object.radius*15){
+                    distances.add(object.getLocation().cpy().sub(camPosition).len());
+                }
+                int i=0;
+                while(!end){
+                    for(Object object : objects) {
+                        if(camPosition.cpy().add(camDirection.cpy().scl(distances.get(i))).sub(object.getLocation()).len() <= object.getRadius()){
+                            System.out.println(object.category);
+                        }
+
+                    }
+                }
             }
         }
 
