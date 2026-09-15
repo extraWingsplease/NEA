@@ -270,6 +270,7 @@ public class Object {
     }
 
     public void advance(float timeConstant, ModelBuilder modelBuilder){
+        dTime = 0;
         assignCategory();
         currentTimeConstant = timeConstant;
         dTime = (float) ( currentTimeConstant* (System.currentTimeMillis() - currenttime)) /1000;
@@ -280,7 +281,7 @@ public class Object {
         resetForce();
         timeSinceLastCollision +=  dTime;
         //System.out.println(dTime);
-        dTime = 0;
+
         //System.out.println(deletiontime);
         if(currenttime >= deletiontime && deletiontime != -1){
             setDelete(true);

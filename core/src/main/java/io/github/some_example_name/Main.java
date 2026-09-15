@@ -100,6 +100,10 @@ public class Main implements ApplicationListener {
     PointSpriteParticleBatch pointSpriteBatch;
     ParticleEffect particleEffect;
 
+    boolean selected;
+    Object selectedobject;
+    Vector3 selectedObjectPosition;
+
 
     @Override
     public void create() {
@@ -138,6 +142,10 @@ public class Main implements ApplicationListener {
         wayPointPosition = new Vector3(0,0,0);
         wayPointDirection = new Vector3(0,0,0);
         wayPointSpeed = trueSpeed;
+
+        selected = false;
+        selectedobject = null;
+        selectedObjectPosition = null;
 
         particleEffect = new ParticleEffect();
         //particleEffect.load(Gdx.files.internal("Test Glow Particle"), Gdx.files.internal(""));
@@ -199,8 +207,27 @@ public class Main implements ApplicationListener {
         // Resize your application here. The parameters represent the new window size.
     }
 
+    public ArrayList<Float> floatBubbleSort(ArrayList<Float> list){
+        float temp;
+        boolean swaps = true;
+        int count = 1;
+        while(swaps){
+            swaps = false;
+            for(int i=0; i<list.size()-count; i++){
+                if(list.get(i)> list.get(i+1)){
+                    temp = list.get(i);
+                    list.set(i,list.get(i+1));
+                    list.set(i+1,temp);
+                    swaps = true;
+                }
+            }
+            count ++;
+        }
+        return list;
+    }
     public void doCameraMovement(PerspectiveCamera camera, float speed, float sensitivity, boolean locked) throws IOException {
-        ArrayList<float> distances;
+
+
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
             camPosition.add(camDirection.cpy().nor().scl(speed));
         }
@@ -233,20 +260,33 @@ public class Main implements ApplicationListener {
                 camera.fieldOfView -= 1;
             }
         }
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
-            distances.clear();
-            boolean end = false;
-            for(Object object : objects) {
-                if (object.getLocation().cpy().sub(camPosition).len()<= object.radius*15){
-                    distances.add(object.getLocation().cpy().sub(camPosition).len());
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (selected) {
+                selected = false;
+            } else {
+                ArrayList<Float> distances = new ArrayList<Float>();
+                boolean end = false;
+                for (Object object : objects) {
+                    if (object.getLocation().cpy().sub(camPosition).len() <= object.radius * 150) {
+                        distances.add(object.getLocation().cpy().sub(camPosition).len());
+                    }
                 }
-                int i=0;
-                while(!end){
-                    for(Object object : objects) {
-                        if(camPosition.cpy().add(camDirection.cpy().scl(distances.get(i))).sub(object.getLocation()).len() <= object.getRadius()){
-                            System.out.println(object.category);
+                distances = floatBubbleSort(distances);
+                int i = 0;
+                while (!end) {
+                    for (Object object : objects) {
+                        if (camPosition.cpy().add(camDirection.cpy().scl(distances.get(i))).sub(object.getLocation()).len() <= object.getRadius()) {
+                            selected = true;
+                            selectedobject = object;
+                            System.out.println("selected" + object.getVolume());
+                            selectedObjectPosition = selectedobject.getLocation().cpy();
+                            end = true;
+                            break;
                         }
-
+                    }
+                    i += 1;
+                    if (i >= distances.size()) {
+                        end = true;
                     }
                 }
             }
@@ -501,6 +541,12 @@ public class Main implements ApplicationListener {
                 doCameraMovement(camera, apparentspeed, 0.15f, locked);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+            if(selected){
+                Vector3 offset = selectedObjectPosition.cpy().sub(selectedobject.getLocation()).scl(-1);
+                camPosition.add(offset);
+                System.out.println(offset);
+                selectedObjectPosition = selectedobject.getLocation().cpy();
             }
             if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
                 try {
