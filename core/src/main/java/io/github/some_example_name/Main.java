@@ -13,8 +13,11 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.io.*;
 import java.util.*;
@@ -296,7 +299,8 @@ public class Main implements ApplicationListener {
 
 
 
-        Gdx.input.setCursorCatched(locked);
+        Gdx.input.setCursorCatched(false);
+        //Gdx.input.setCursorCatched(locked);
         if(locked){
             if(camDirection.y > 0.965){
                 camDirection.set(camDirection.x, 0.965f,camDirection.z);
@@ -517,7 +521,7 @@ public class Main implements ApplicationListener {
                 }
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-                Object obj = new Object(random.nextFloat(2,20f), 4, camera.position.x + camera.direction.cpy().nor().scl(100).x,camera.position.y + camera.direction.cpy().nor().scl(100).y,camera.position.z + camera.direction.cpy().nor().scl(100).z, 0,0,0f,modelBuilder, false, -1, -1, -1);
+                Object obj = new Object(random.nextFloat(2,15.9f), 4, camera.position.x + camera.direction.cpy().nor().scl(100).x,camera.position.y + camera.direction.cpy().nor().scl(100).y,camera.position.z + camera.direction.cpy().nor().scl(100).z, 0,0,0f,modelBuilder, false, -1, -1, -1);
                 objects.add(obj);
                 obj.assignCategory();
                 obj.assignProperties(modelBuilder,environment);
