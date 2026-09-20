@@ -48,7 +48,7 @@ public class Button {
     public void setActiveModel(String activeModel) {model2 = activeModel;}
 
     public boolean isMouseHovering(boolean switchModel){
-        if(Gdx.input.getX() >= position.x && Gdx.input.getX() <= position.x + width && Gdx.input.getY() >= position.y && Gdx.input.getY() <= position.y + height){
+        if(Gdx.input.getX() >= position.x && Gdx.input.getX() <= position.x + width && Gdx.graphics.getHeight() - Gdx.input.getY() >= position.y && Gdx.graphics.getHeight() - Gdx.input.getY() <= position.y + height){
             if(switchModel){
                 currentModelIndex = 2;
             }
@@ -69,6 +69,8 @@ public class Button {
         }
         assert currentTexture != null;
         Sprite sprite = new Sprite(currentTexture);
+        sprite.setPosition(position.x, position.y);
+        sprite.setSize(width, height);
         sprite.draw(batch);
     }
 }

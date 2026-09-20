@@ -59,6 +59,8 @@ X - create arbitrary planet
 
 /** {@link ApplicationListener} implementation shared by all platforms. */
 public class Main implements ApplicationListener {
+    SpriteBatch spriteBatch;
+    ShapeRenderer shaper;
     PerspectiveCamera camera;
     Vector3 vertical;
     boolean locked;
@@ -76,6 +78,7 @@ public class Main implements ApplicationListener {
     float wayPointSpeed;
     ArrayList<Model> models;
     Date time;
+
 
     ArrayList<ModelInstance> modelInstances;
     Random random;
@@ -102,6 +105,11 @@ public class Main implements ApplicationListener {
     ParticleSystem particleSystem;
     PointSpriteParticleBatch pointSpriteBatch;
     ParticleEffect particleEffect;
+    Button testbutton;
+    Label template;
+    int gamescreen;
+    boolean screenLoaded;
+
 
     boolean selected;
     Object selectedobject;
@@ -110,6 +118,8 @@ public class Main implements ApplicationListener {
 
     @Override
     public void create() {
+        spriteBatch = new SpriteBatch();
+        shaper = new ShapeRenderer();
         particleSystem = new ParticleSystem();
         modelBatch = new ModelBatch();
         environment = new Environment();
@@ -145,6 +155,11 @@ public class Main implements ApplicationListener {
         wayPointPosition = new Vector3(0,0,0);
         wayPointDirection = new Vector3(0,0,0);
         wayPointSpeed = trueSpeed;
+        testbutton = new Button("Ambient model test.png", "Active model test.png", 0 , 0 , 200, 60);
+        template = new Label("template.png", 100, 100, 200, 150);
+        gamescreen = 0;
+        screenLoaded = false;
+
 
         selected = false;
         selectedobject = null;
@@ -228,6 +243,40 @@ public class Main implements ApplicationListener {
         }
         return list;
     }
+    public void setStage(int screen, SpriteBatch spriteBatch){
+        if(!screenLoaded){
+            Label title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
+            Button startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
+            screenLoaded = true;
+        }
+        if(screenLoaded) {
+            Label title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
+            if (screen != -1) {
+                gamescreen = screen;
+            }
+
+            //MAIN MENU
+            if (gamescreen == 0) {
+
+                Button startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
+
+                if(startGame.isMouseHovering(true) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
+                    gamescreen =1;
+                }
+                title.draw(spriteBatch);
+                startGame.draw(spriteBatch);
+            }
+            if(gamescreen == 1){
+                Button placeholder = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2+random.nextFloat((float) -Gdx.graphics.getWidth() /3, (float) Gdx.graphics.getWidth() /3), (float) Gdx.graphics.getHeight() /2+random.nextFloat((float) -Gdx.graphics.getHeight() /3, (float) Gdx.graphics.getHeight() /3), 100, 100);
+
+                placeholder.draw(spriteBatch);
+                title.draw(spriteBatch);
+                if(placeholder.isMouseHovering(true) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
+                    gamescreen =0;
+                }
+            }
+        }
+    }
     public void doCameraMovement(PerspectiveCamera camera, float speed, float sensitivity, boolean locked) throws IOException {
 
 
@@ -299,8 +348,8 @@ public class Main implements ApplicationListener {
 
 
 
-        Gdx.input.setCursorCatched(false);
-        //Gdx.input.setCursorCatched(locked);
+        //Gdx.input.setCursorCatched(false);
+        Gdx.input.setCursorCatched(locked);
         if(locked){
             if(camDirection.y > 0.965){
                 camDirection.set(camDirection.x, 0.965f,camDirection.z);
@@ -576,6 +625,7 @@ public class Main implements ApplicationListener {
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+            ScreenUtils.clear(0.05f,0.05f,0.05f,1);
             modelBatch.begin(camera);
             camera.update();
         /*
@@ -589,10 +639,20 @@ public class Main implements ApplicationListener {
             for (Object object : objects) {
                 object.draw(modelBatch,environment);
             }
-            //environment.clear();
 
             modelBatch.end();
-
+            shaper.begin(ShapeRenderer.ShapeType.Filled);
+            if(locked) {
+                shaper.setColor(0,0,0,0);
+                shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 3);
+                shaper.setColor(1,1,1,1);
+                shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 2);
+            }
+            //environment.clear();
+            shaper.end();
+            spriteBatch.begin();
+            setStage(-1, spriteBatch);
+            spriteBatch.end();
 
         }
     }
@@ -610,6 +670,8 @@ public class Main implements ApplicationListener {
     @Override
     public void dispose() {
         // Destroy application's resources here.
+        spriteBatch.dispose();
+        shaper.dispose();
         modelBatch.dispose();
         model.dispose();
     }

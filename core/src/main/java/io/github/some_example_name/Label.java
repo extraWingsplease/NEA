@@ -40,6 +40,8 @@ public class Label {
 
     public void draw(SpriteBatch batch){
         Sprite sprite = new Sprite(texture);
+        sprite.setPosition(position.x, position.y);
+        sprite.setSize(width, height);
         sprite.draw(batch);
     }
 }
