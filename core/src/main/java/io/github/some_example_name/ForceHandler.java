@@ -118,7 +118,7 @@ public class ForceHandler {
         breakDownObjects.clear();
         ArrayList<Object> objects = new ArrayList<Object>();
         for(int i=0; i<REALobjects.size(); i++){
-            if(REALobjects.get(i).getCollision() || REALobjects.get(i).getCategory() == 3){
+            if(REALobjects.get(i).getCollision() || REALobjects.get(i).getCategory() == 2){
                 objects.add(REALobjects.get(i));
             }
         }
@@ -148,7 +148,7 @@ public class ForceHandler {
                         }
                     } else {
                         if (random.nextFloat() >= 0.9f) {
-                            a.startDeletiontimer(5);
+                            //a.startDeletiontimer(5);
                             a.setDelete(true);
                             if (random.nextInt(0, 100) >= 90) {
                                 v.addMassWDENSITY(a.getMass());

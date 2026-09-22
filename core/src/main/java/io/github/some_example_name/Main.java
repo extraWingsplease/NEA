@@ -458,6 +458,7 @@ public class Main implements ApplicationListener {
             object.assignCategory();
             object.assignProperties(modelBuilder,environment);
             object.refreshmodel(modelBuilder);
+            System.out.println(object.getCollision());
         }
         System.out.println("loaded with " + count + " objects");
 
