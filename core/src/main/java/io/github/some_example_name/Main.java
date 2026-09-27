@@ -110,6 +110,10 @@ public class Main implements ApplicationListener {
     int gamescreen;
     boolean screenLoaded;
 
+    Label title;
+    Button startGame;
+    Slider testSlider;
+
 
     boolean selected;
     Object selectedobject;
@@ -159,6 +163,11 @@ public class Main implements ApplicationListener {
         template = new Label("template.png", 100, 100, 200, 150);
         gamescreen = 0;
         screenLoaded = false;
+
+        title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
+        startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
+        testSlider = new Slider("Label.png","Label.png", 100, 100, 1000, 100, 0, 0, 10, 0.1f);
+
 
 
         selected = false;
@@ -245,34 +254,32 @@ public class Main implements ApplicationListener {
     }
     public void setStage(int screen, SpriteBatch spriteBatch){
         if(!screenLoaded){
-            Label title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
-            Button startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
             screenLoaded = true;
         }
         if(screenLoaded) {
-            Label title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
             if (screen != -1) {
                 gamescreen = screen;
             }
 
             //MAIN MENU
             if (gamescreen == 0) {
-
-                Button startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
-
                 if(startGame.isMouseHovering(true) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
                     gamescreen =1;
                 }
                 title.draw(spriteBatch);
                 startGame.draw(spriteBatch);
+                testSlider.slide();
+                testSlider.draw(spriteBatch);
+
             }
             if(gamescreen == 1){
-                Button placeholder = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2+random.nextFloat((float) -Gdx.graphics.getWidth() /3, (float) Gdx.graphics.getWidth() /3), (float) Gdx.graphics.getHeight() /2+random.nextFloat((float) -Gdx.graphics.getHeight() /3, (float) Gdx.graphics.getHeight() /3), 100, 100);
+                gamerunning = true;
+                if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+                    gamescreen = 0;
+                    gamerunning = false;
+                    locked = false;
+                    Gdx.input.setCursorCatched(false);
 
-                placeholder.draw(spriteBatch);
-                title.draw(spriteBatch);
-                if(placeholder.isMouseHovering(true) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
-                    gamescreen =0;
                 }
             }
         }
@@ -486,7 +493,7 @@ public class Main implements ApplicationListener {
     }
     @Override
     public void render() {
-        if (!gamerunning) {
+        if (gamerunning) {
 
             //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             forces.refreshArray(objects);
@@ -623,12 +630,7 @@ public class Main implements ApplicationListener {
                     throw new RuntimeException(e);
                 }
             }
-            Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-            ScreenUtils.clear(0.05f,0.05f,0.05f,1);
-            modelBatch.begin(camera);
-            camera.update();
+
         /*
         for(int i =0; i<breakdown.getCoordinates().length; i++) {
             modelBatch.render(modelInstances.get(i));
@@ -637,25 +639,35 @@ public class Main implements ApplicationListener {
          */
 
 
+
+
+
+        }
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        ScreenUtils.clear(0.05f,0.05f,0.05f,1);
+        if(gamerunning) {
+            modelBatch.begin(camera);
+            camera.update();
             for (Object object : objects) {
-                object.draw(modelBatch,environment);
+                object.draw(modelBatch, environment);
             }
 
             modelBatch.end();
             shaper.begin(ShapeRenderer.ShapeType.Filled);
-            if(locked) {
-                shaper.setColor(0,0,0,0);
+            if (locked) {
+                shaper.setColor(0, 0, 0, 0);
                 shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 3);
-                shaper.setColor(1,1,1,1);
+                shaper.setColor(1, 1, 1, 1);
                 shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 2);
             }
-            //environment.clear();
-            shaper.end();
-            spriteBatch.begin();
-            setStage(-1, spriteBatch);
-            spriteBatch.end();
-
         }
+        //environment.clear();
+        shaper.end();
+        spriteBatch.begin();
+        setStage(-1, spriteBatch);
+        spriteBatch.end();
     }
 
     @Override

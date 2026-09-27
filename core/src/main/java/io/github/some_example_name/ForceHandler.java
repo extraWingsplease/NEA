@@ -123,10 +123,12 @@ public class ForceHandler {
             }
         }
         //System.out.println(objects.size() + ":" + REALobjects.size());
-        for (int actor = 0; actor < objects.size(); actor++) {
-            Object a = objects.get(actor);
-            for (int victim = 0; victim < REALobjects.size(); victim++) {
-                Object v = REALobjects.get(victim);
+        for (int actor = 0; actor < REALobjects.size(); actor++) {
+            Object a = REALobjects.get(actor);
+            for (int victim = 0; victim < objects.size(); victim++) {
+            Object v = objects.get(victim);
+
+
                 if(v!=a){
                 Vector3 distance = v.getLocation().cpy().sub(a.getLocation());
                 float magnitude = distance.len();
