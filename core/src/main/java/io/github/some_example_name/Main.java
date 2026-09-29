@@ -166,7 +166,7 @@ public class Main implements ApplicationListener {
 
         title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
         startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
-        testSlider = new Slider("Label.png","Label.png", 100, 100, 1000, 100, 0, 0, 10, 0.1f);
+        testSlider = new Slider("Label.png","Label.png", 100, 100, 1000, 100, 45, 0, 10, 0.1f);
 
 
 

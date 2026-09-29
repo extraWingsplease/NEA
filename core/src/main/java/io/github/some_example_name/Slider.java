@@ -63,10 +63,20 @@ public class Slider {
     }
 
     public float mapToMouse(){
-        Vector2 mouseToSlider = new Vector2(Gdx.input.getX()-sliderPosition.x, Gdx.input.getY()-sliderPosition.y);
-        float perpendicularDistance = (float) (Math.abs(mouseToSlider.y - Math.tan(rotationRad)*mouseToSlider.x)/(Math.sqrt(Math.pow(mouseToSlider.y,2) - Math.pow(mouseToSlider.x,2))));
-        float distanceAlong = (float) Math.sqrt(Math.pow(mouseToSlider.cpy().len(),2) - perpendicularDistance);
+        Vector2 mouseToSlider = new Vector2(Gdx.input.getX()-sliderPosition.x, (Gdx.graphics.getHeight()- Gdx.input.getY())-sliderPosition.y);
+        float perpendicularDistance;
+        if(rotationDeg == 0 || rotationDeg == 360 || rotationDeg== 180){
+            perpendicularDistance = (float) (Math.abs(mouseToSlider.y));
+        }
+        else if(rotationDeg == 90 || rotationDeg == 270){
+            perpendicularDistance = (float) (Math.abs(mouseToSlider.x));
+        }
+        else{
+            perpendicularDistance = (float) (Math.abs(mouseToSlider.y - Math.tan(rotationRad)*mouseToSlider.x)/(Math.sqrt(Math.pow(mouseToSlider.y,2) + Math.pow(mouseToSlider.x,2))));
+        }
+        float distanceAlong = (float) Math.sqrt(Math.pow(mouseToSlider.cpy().len(),2) - Math.pow(perpendicularDistance,2));
         return distanceAlong;
+
     }
 
     public void slide(){
@@ -81,7 +91,6 @@ public class Slider {
             }
             value = (relativeWedgePosition * (max-min)) + min;
         }
-        System.out.println(relativeWedgePosition);;
     }
     public void draw(SpriteBatch batch){
         Sprite barSprite = new Sprite(barTexture);
@@ -89,8 +98,10 @@ public class Slider {
         barSprite.setPosition(sliderPosition.x, sliderPosition.y);
         barSprite.setRotation(rotationDeg);
         barSprite.setSize(width,height);
-        wedgeSprite.setPosition((float) (sliderPosition.x + (relativeWedgePosition/Math.cos(rotationRad))), (float) (sliderPosition.y + (relativeWedgePosition/Math.sin(rotationRad))));
+        wedgeSprite.setPosition((float) (sliderPosition.x + (width*relativeWedgePosition*Math.cos(rotationRad))), (float) (sliderPosition.y + (width*relativeWedgePosition*Math.sin(rotationRad))));
+        System.out.println(Math.cos(rotationRad));
         wedgeSprite.setRotation(rotationDeg);
+        System.out.println(wedgeSprite.getX()+ " " + wedgeSprite.getY());
         wedgeSprite.setSize(height,height*2);
         wedgeSprite.draw(batch);
         barSprite.draw(batch);
