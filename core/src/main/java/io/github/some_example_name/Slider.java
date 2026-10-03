@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 public class Slider {
@@ -65,16 +67,31 @@ public class Slider {
     public float mapToMouse(){
         Vector2 mouseToSlider = new Vector2(Gdx.input.getX()-sliderPosition.x, (Gdx.graphics.getHeight()- Gdx.input.getY())-sliderPosition.y);
         float perpendicularDistance;
+        int sign = 1;
         if(rotationDeg == 0 || rotationDeg == 360 || rotationDeg== 180){
-            perpendicularDistance = (float) (Math.abs(mouseToSlider.y));
+            perpendicularDistance = (float) ((mouseToSlider.y));
+            //System.out.println("x");
+            if(mouseToSlider.x < 0){
+                sign = -1;
+            }
         }
         else if(rotationDeg == 90 || rotationDeg == 270){
-            perpendicularDistance = (float) (Math.abs(mouseToSlider.x));
+            perpendicularDistance = (float) ((mouseToSlider.x));
+            //System.out.println("y");
+            if(mouseToSlider.y < 0){
+                sign = -1;
+            }
         }
         else{
-            perpendicularDistance = (float) (Math.abs(mouseToSlider.y - Math.tan(rotationRad)*mouseToSlider.x)/(Math.sqrt(Math.pow(mouseToSlider.y,2) + Math.pow(mouseToSlider.x,2))));
+            perpendicularDistance = (float) (mouseToSlider.y - Math.tan(rotationRad)*mouseToSlider.x/(Math.sqrt(Math.pow(mouseToSlider.y,2) + Math.pow(mouseToSlider.x,2))));
+            //System.out.println("x and y");
+            if(mouseToSlider.x < 0 || mouseToSlider.y < 0){
+                sign = -1;
+            }
         }
-        float distanceAlong = (float) Math.sqrt(Math.pow(mouseToSlider.cpy().len(),2) - Math.pow(perpendicularDistance,2));
+
+        float distanceAlong = (float) Math.sqrt(Math.pow(mouseToSlider.cpy().len(),2) - Math.pow(perpendicularDistance,2)) * sign;
+        //System.out.println(mouseToSlider+" "+perpendicularDistance + " " + distanceAlong);
         return distanceAlong;
 
     }
@@ -96,15 +113,19 @@ public class Slider {
         Sprite barSprite = new Sprite(barTexture);
         Sprite wedgeSprite = new Sprite(wedgeTexture);
         barSprite.setPosition(sliderPosition.x, sliderPosition.y);
+        barSprite.setOrigin(barSprite.getX(), barSprite.getY());
+
         barSprite.setRotation(rotationDeg);
+        rotationRad = (float) (rotationDeg * 2 * Math.PI)/360;
         barSprite.setSize(width,height);
-        wedgeSprite.setPosition((float) (sliderPosition.x + (width*relativeWedgePosition*Math.cos(rotationRad))), (float) (sliderPosition.y + (width*relativeWedgePosition*Math.sin(rotationRad))));
-        System.out.println(Math.cos(rotationRad));
+        wedgeSprite.setPosition((float) ((float) (sliderPosition.x + (width*relativeWedgePosition*Math.cos(rotationRad))) -((height/2) * Math.cos(rotationRad))+ ((height)/2 * Math.sin(rotationRad))), (float) (sliderPosition.y + (width*relativeWedgePosition*Math.sin(rotationRad)) - ((height)/2 * Math.cos(rotationRad))- ((height)/2 * Math.sin(rotationRad))));
+        wedgeSprite.setOrigin(barSprite.getX(),barSprite.getY());
         wedgeSprite.setRotation(rotationDeg);
-        System.out.println(wedgeSprite.getX()+ " " + wedgeSprite.getY());
+        //System.out.println(wedgeSprite.getX()+ " " + wedgeSprite.getY());
         wedgeSprite.setSize(height,height*2);
         wedgeSprite.draw(batch);
         barSprite.draw(batch);
+        System.out.println(barSprite.getX() + " " + barSprite.getY());
 
     }
 }

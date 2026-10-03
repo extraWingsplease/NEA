@@ -112,7 +112,8 @@ public class Main implements ApplicationListener {
 
     Label title;
     Button startGame;
-    Slider testSlider;
+    Slider testSlider1;
+    Slider testSlider2;
 
 
     boolean selected;
@@ -166,7 +167,8 @@ public class Main implements ApplicationListener {
 
         title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
         startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
-        testSlider = new Slider("Label.png","Label.png", 100, 100, 1000, 100, 45, 0, 10, 0.1f);
+        testSlider1 = new Slider("Label.png","Label.png", 0, 0, 1000, 100, 0, 0, 10, 0.1f);
+        testSlider2 = new Slider("Label.png","Label.png", 100, 0, 1000, 100, 90, 0, 10, 0.1f);
 
 
 
@@ -268,8 +270,10 @@ public class Main implements ApplicationListener {
                 }
                 title.draw(spriteBatch);
                 startGame.draw(spriteBatch);
-                testSlider.slide();
-                testSlider.draw(spriteBatch);
+                testSlider1.slide();
+                testSlider1.draw(spriteBatch);
+                testSlider2.slide();
+                testSlider2.draw(spriteBatch);
 
             }
             if(gamescreen == 1){
@@ -647,6 +651,7 @@ public class Main implements ApplicationListener {
         Gdx.gl.glClearColor(0.05f,0.05f,0.05f,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         ScreenUtils.clear(0.05f,0.05f,0.05f,1);
+        shaper.begin(ShapeRenderer.ShapeType.Filled);
         if(gamerunning) {
             modelBatch.begin(camera);
             camera.update();
@@ -655,14 +660,18 @@ public class Main implements ApplicationListener {
             }
 
             modelBatch.end();
-            shaper.begin(ShapeRenderer.ShapeType.Filled);
+
             if (locked) {
                 shaper.setColor(0, 0, 0, 0);
                 shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 3);
                 shaper.setColor(1, 1, 1, 1);
                 shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 2);
             }
+
+
         }
+        shaper.setColor(1,1,1,1);
+        shaper.circle(100,100,3);
         //environment.clear();
         shaper.end();
         spriteBatch.begin();
