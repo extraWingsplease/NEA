@@ -40,8 +40,8 @@ public class ForceHandler {
     }
     public void gravity(ArrayList<Object> objects){
         ArrayList<Object> nofakeobjects = noFakeObjects;
-        for(int actor=0; actor<nofakeobjects.size(); actor++){
-        Object a = nofakeobjects.get(actor);
+        for(int actor=0; actor<objects.size(); actor++){
+        Object a = objects.get(actor);
         for(int victim=actor+1; victim<objects.size(); victim++){
             Object v = objects.get(victim);
                 //System.out.println(objects.get(actor).getX());

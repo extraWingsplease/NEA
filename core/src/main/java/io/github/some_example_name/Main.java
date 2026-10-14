@@ -540,12 +540,14 @@ public class Main implements ApplicationListener {
         }
         */
             breakDownObjects.clear();
-            breakDownObjects = forces.contact(objects);
-            forces.gravity(objects);
-            for(int i=0; i<breakDownObjects.size(); i++){
-                triggerBreakaway(objects,breakDownObjects.get(i));
-                breakDownObjects.get(i).setCollision(false);
-                breakDownObjects.get(i).setDelete(true);
+            if(timeSpeed!=0) {
+                breakDownObjects = forces.contact(objects);
+                forces.gravity(objects);
+                for (int i = 0; i < breakDownObjects.size(); i++) {
+                    triggerBreakaway(objects, breakDownObjects.get(i));
+                    breakDownObjects.get(i).setCollision(false);
+                    breakDownObjects.get(i).setDelete(true);
+                }
             }
             //}
 
