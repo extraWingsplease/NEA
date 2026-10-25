@@ -160,7 +160,9 @@ public class Main implements ApplicationListener {
         wayPointPosition = new Vector3(0,0,0);
         wayPointDirection = new Vector3(0,0,0);
         wayPointSpeed = trueSpeed;
-        testbutton = new Button("Ambient model test.png", "Active model test.png", 0 , 0 , 200, 60);
+        testbutton = new Button("Ambient model test.png", "Active model test.png", 0
+
+            , 0 , 200, 60);
         template = new Label("template.png", 100, 100, 200, 150);
         gamescreen = 0;
         screenLoaded = false;

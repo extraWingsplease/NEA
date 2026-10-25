@@ -310,7 +310,8 @@ public class Object {
             modelBatch.render(instance);
         }
         else{
-            modelBatch.render(instance, environment);
+            modelBatch.render(instance);
+            //modelBatch.render(instance, environment);
         }
         //instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         //modelBatch.render(instance);

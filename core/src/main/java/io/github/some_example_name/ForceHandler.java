@@ -52,8 +52,14 @@ public class ForceHandler {
                 //System.out.println("distance from " +victim + " to " + actor + ": " + distance + magnitude);
                 //System.out.println(distance.nor().scl((float) (objects.get(actor).getMass() / Math.pow(magnitude, 2))));
 
-                if (magnitude!= 0 && Math.pow(magnitude,2) >= Math.pow(a.radius,2)/4) {
-                    Vector3 gravitation = distance.nor().scl((float) (-0.0000006743 * (a.getMass() * v.getMass()) / Math.pow(magnitude, 2)));
+                if (magnitude!= 0 && Math.pow(magnitude,2) >= Math.pow(a.getRadius(),2)) {
+                    Vector3 gravitation = distance.cpy().nor().scl((float) (-0.0000006743 * (a.getMass() * v.getMass()) / Math.pow(magnitude, 2)));
+                    v.newForce(gravitation);
+                    a.newForce(gravitation.scl(-1));
+                }
+                else if(Math.pow(magnitude,2) <= Math.pow(a.getRadius(),2)){
+                    Vector3 surfaceGravitation = distance.cpy().nor().scl((float) (-0.0000006743 * (a.getMass() * v.getMass() ) / Math.pow(a.getRadius(), 2)));
+                    Vector3 gravitation = surfaceGravitation.cpy().scl((distance.cpy().len()/a.getRadius()));
                     v.newForce(gravitation);
                     a.newForce(gravitation.scl(-1));
                 }
