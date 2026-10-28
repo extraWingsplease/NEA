@@ -129,7 +129,7 @@ public class Main implements ApplicationListener {
         modelBatch = new ModelBatch();
         environment = new Environment();
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camPosition = new Vector3(-1,0,0);
+        camPosition = new Vector3(-3000,0,0);
         camera.position.set(camPosition);
         mouse = new mouseScroll();
         random = new Random();
@@ -160,9 +160,7 @@ public class Main implements ApplicationListener {
         wayPointPosition = new Vector3(0,0,0);
         wayPointDirection = new Vector3(0,0,0);
         wayPointSpeed = trueSpeed;
-        testbutton = new Button("Ambient model test.png", "Active model test.png", 0
-
-            , 0 , 200, 60);
+        testbutton = new Button("Ambient model test.png", "Active model test.png", 0, 0 , 200, 60);
         template = new Label("template.png", 100, 100, 200, 150);
         gamescreen = 0;
         screenLoaded = false;
@@ -355,6 +353,31 @@ public class Main implements ApplicationListener {
                     }
                 }
             }
+        }
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+            ArrayList<Float> distances = new ArrayList<Float>();
+            boolean end = false;
+            for (Object object : objects) {
+                if (object.getLocation().cpy().sub(camPosition).len() <= object.radius * 150) {
+                    distances.add(object.getLocation().cpy().sub(camPosition).len());
+                }
+            }
+            distances = floatBubbleSort(distances);
+            int i = 0;
+            while (!end) {
+                for (Object object : objects) {
+                    if (camPosition.cpy().add(camDirection.cpy().scl(distances.get(i))).sub(object.getLocation()).len() <= object.getRadius()) {
+                        object.setDelete(true);
+                        end = true;
+                        break;
+                    }
+                }
+                i += 1;
+                if (i >= distances.size()) {
+                    end = true;
+                }
+            }
+
         }
 
 
@@ -675,7 +698,7 @@ public class Main implements ApplicationListener {
 
         }
         shaper.setColor(1,1,1,1);
-        shaper.circle(100,100,3);
+        //shaper.circle(100,100,3);
         //environment.clear();
         shaper.end();
         spriteBatch.begin();
