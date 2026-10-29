@@ -42,9 +42,9 @@ public class ChunkHandler {
     }
 
     public void positionOnGrid(io.github.some_example_name.Object obj){
-        int chunkX = (int) obj.getLocation().x/chunkSize;
-        int chunkY = (int) obj.getLocation().y/chunkSize;
-        int chunkZ = (int) obj.getLocation().z/chunkSize;
+        int chunkX = (int) Math.floorDiv((int) obj.getLocation().x,chunkSize);
+        int chunkY = (int) Math.floorDiv((int) obj.getLocation().y,chunkSize);
+        int chunkZ = (int) Math.floorDiv((int) obj.getLocation().z,chunkSize);
 
 
         long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
@@ -52,18 +52,21 @@ public class ChunkHandler {
             ((long) chunkZ & 0x1FFFFF);
         grid.computeIfAbsent(longKey, k -> new ArrayList<>()).add(obj);
     }
+    public Vector3 chunkPosition(io.github.some_example_name.Object obj){
+        int chunkX = (int) Math.floorDiv((int) obj.getLocation().x,chunkSize);
+        int chunkY = (int) Math.floorDiv((int) obj.getLocation().y,chunkSize);
+        int chunkZ = (int) Math.floorDiv((int) obj.getLocation().z,chunkSize);
+        return new Vector3(chunkX,chunkY,chunkZ);
+    }
 
-    public ArrayList<Object> potentialColliders(io.github.some_example_name.Object obj){
+    public ArrayList<Object> surroundingObjects(int chunkX, int chunkY, int chunkZ, int reach){
         ArrayList<Object> vicinity = new ArrayList<>();
-        int chunkX = (int) obj.getLocation().x/chunkSize;
-        int chunkY = (int) obj.getLocation().y/chunkSize;
-        int chunkZ = (int) obj.getLocation().z/chunkSize;
-        for (int x = -1; x <= 1; x++) {
-            for (int y = -1; y <= 1; y++) {
-                for (int z = -1; z <= 1; z++) {
-                    long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
-                        (((long) chunkY & 0x1FFFFF) << 21) |
-                        ((long) chunkZ & 0x1FFFFF);
+        for (int x = -reach; x <= reach; x++) {
+            for (int y = -reach; y <= reach; y++) {
+                for (int z = -reach; z <= reach; z++) {
+                    long longKey = (((long) chunkX+x & 0x1FFFFF) << 42) |
+                        (((long) chunkY+y & 0x1FFFFF) << 21) |
+                        ((long) chunkZ+z & 0x1FFFFF);
                     ArrayList<Object> cellObjects = grid.get(longKey);
                     if(cellObjects != null){
                         vicinity.addAll(cellObjects);
@@ -92,9 +95,11 @@ public class ChunkHandler {
             (((long) chunkY & 0x1FFFFF) << 21) |
             ((long) chunkZ & 0x1FFFFF);
         ArrayList<Object> cellObjects = grid.get(longKey);
-        for (Object cellObject : cellObjects) {
-            if( cellObject.getBreakaway() ){
-                chunkMass += cellObject.getMass();
+        if(!(cellObjects == null)) {
+            for (Object cellObject : cellObjects) {
+                if (cellObject.getBreakaway()) {
+                    chunkMass += cellObject.getMass();
+                }
             }
         }
         return chunkMass;
@@ -106,13 +111,38 @@ public class ChunkHandler {
             (((long) chunkY & 0x1FFFFF) << 21) |
             ((long) chunkZ & 0x1FFFFF);
         ArrayList<Object> cellObjects = grid.get(longKey);
-        for (Object cellObject : cellObjects) {
-            if( cellObject.getBreakaway() ){
-                chunkMass += cellObject.getMass();
-                count ++;
+        if(!(cellObjects == null)) {
+            for (Object cellObject : cellObjects) {
+                if (cellObject.getBreakaway()) {
+                    chunkMass += cellObject.getMass();
+                    count++;
+                }
             }
         }
-        return chunkMass/count;
+        if(count !=0) {
+            return chunkMass / count;
+        }
+        return 0;
+    }
+    public float averageBreakawayRadius(int chunkX, int chunkY, int chunkZ){
+        float chunkRadius = 0;
+        int count = 0;
+        long longKey = (((long) chunkX & 0x1FFFFF) << 42) |
+            (((long) chunkY & 0x1FFFFF) << 21) |
+            ((long) chunkZ & 0x1FFFFF);
+        ArrayList<Object> cellObjects = grid.get(longKey);
+        if(!(cellObjects == null)) {
+            for (Object cellObject : cellObjects) {
+                if (cellObject.getBreakaway()) {
+                    chunkRadius += cellObject.getRadius();
+                    count++;
+                }
+            }
+        }
+        if(count !=0) {
+            return chunkRadius / count;
+        }
+        return 0;
     }
 
     public Vector3 centreOfMass(int chunkX, int chunkY, int chunkZ){
@@ -143,20 +173,27 @@ public class ChunkHandler {
             (((long) chunkY & 0x1FFFFF) << 21) |
             ((long) chunkZ & 0x1FFFFF);
         ArrayList<Object> cellObjects = grid.get(longKey);
-        for (Object cellObject : cellObjects){
-            if(cellObject.getBreakaway()) {
-                xMass += cellObject.getMass() * cellObject.getLocation().x;
-                yMass += cellObject.getMass() * cellObject.getLocation().y;
-                zMass += cellObject.getMass() * cellObject.getLocation().z;
+        if(!(cellObjects == null)) {
+            for (Object cellObject : cellObjects) {
+                if (cellObject.getBreakaway()) {
+                    xMass += cellObject.getMass() * cellObject.getLocation().x;
+                    yMass += cellObject.getMass() * cellObject.getLocation().y;
+                    zMass += cellObject.getMass() * cellObject.getLocation().z;
+                }
             }
         }
-        xMass = xMass/chunkMass;
-        yMass = yMass/chunkMass;
-        zMass = zMass/chunkMass;
+        if(xMass!= 0 && chunkMass!= 0) {
+            xMass = xMass / chunkMass;
+        }
+        if(yMass!= 0 && chunkMass!= 0) {
+            yMass = yMass / chunkMass;
+        }
+        if(zMass!= 0 && chunkMass!= 0) {
+            zMass = zMass / chunkMass;
+        }
         return new Vector3(xMass,yMass,zMass);
     }
     public Vector3 centreOfVicinityBreakawayMass(int chunkX, int chunkY, int chunkZ, int reach){
-        int chunknum = (int) Math.pow(1+2*reach,3);
         float vicinityMass = 0;
         float xMass = 0;
         float yMass = 0;
@@ -171,9 +208,11 @@ public class ChunkHandler {
                 }
             }
         }
-        xMass = xMass/vicinityMass;
-        yMass = yMass/vicinityMass;
-        zMass = zMass/vicinityMass;
+        if(vicinityMass !=0) {
+            xMass = xMass / vicinityMass;
+            yMass = yMass / vicinityMass;
+            zMass = zMass / vicinityMass;
+        }
         return new Vector3(xMass,yMass,zMass);
     }
 
@@ -184,5 +223,25 @@ public class ChunkHandler {
             }
         }
         return false;
+    }
+
+    public Vector3 mostValidChunk() {
+        float highestmass = -1;
+        Vector3 highestchunk = new Vector3(0,0,0);
+        for (long key : grid.keySet()) {
+            int X = (int) ((key >> 42) & 0x1FFFFF);
+            int Y = (int) ((key >> 21) & 0x1FFFFF);
+            int Z = (int) (key & 0x1FFFFF);
+
+            int chunkX = (X << 11) >> 11;
+            int chunkY = (Y << 11) >> 11;
+            int chunkZ = (Z << 11) >> 11;
+
+            if(collectiveBreakawayMass(chunkX,chunkY,chunkZ) > highestmass){
+                highestchunk.set(chunkX,chunkY,chunkZ);
+                highestmass = collectiveBreakawayMass(chunkX,chunkY,chunkZ);
+            }
+        }
+        return highestchunk;
     }
 }

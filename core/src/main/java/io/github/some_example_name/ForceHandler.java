@@ -124,7 +124,7 @@ public class ForceHandler {
         breakDownObjects.clear();
         ArrayList<Object> objects = new ArrayList<Object>();
         for(int i=0; i<REALobjects.size(); i++){
-            if(REALobjects.get(i).getCollision() || REALobjects.get(i).getCategory() == 2){
+            if(REALobjects.get(i).getCollision() || REALobjects.get(i).getCategory() == 2 || REALobjects.get(i).getCategory() == 3){
                 objects.add(REALobjects.get(i));
             }
         }

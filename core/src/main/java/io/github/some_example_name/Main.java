@@ -109,6 +109,8 @@ public class Main implements ApplicationListener {
     Label template;
     int gamescreen;
     boolean screenLoaded;
+    int countmerge;
+    Vector3 mergedObjectChunk;
 
     Label title;
     Button startGame;
@@ -145,7 +147,7 @@ public class Main implements ApplicationListener {
         environment.add(new PointLight().set(1f,1f,1f, new Vector3(0,0,0), 1f));
         modelInstances = new ArrayList<ModelInstance>();
         trueSpeed = 1;
-        chunksize = 10;
+        chunksize = 50;
         Gdx.input.setInputProcessor(mouse);
         objects = new ArrayList<Object>();
         testballs = new ArrayList<Object>();
@@ -164,6 +166,8 @@ public class Main implements ApplicationListener {
         template = new Label("template.png", 100, 100, 200, 150);
         gamescreen = 0;
         screenLoaded = false;
+        countmerge = 0;
+        mergedObjectChunk = new Vector3();
 
         title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
         startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
@@ -520,6 +524,62 @@ public class Main implements ApplicationListener {
         System.out.println("Saved!");
         bufferedWriter.close();
     }
+    public Object merge(){
+        for (Object object : objects) {
+            chunkz.positionOnGrid(object);
+        }
+        Vector3 mergingChunk = chunkz.mostValidChunk();
+        int mergingChunkX = (int) mergingChunk.x;
+        int mergingChunkY = (int) mergingChunk.y;
+        int mergingChunkZ = (int) mergingChunk.z;
+        if(chunkz.validToCombine(mergingChunkX, mergingChunkY, (int) mergingChunkZ,50)){
+            Vector3 mergingCentre = chunkz.centreOfVicinityBreakawayMass(mergingChunkX,mergingChunkY,mergingChunkZ,1);
+            float avgRadius = chunkz.averageBreakawayRadius(mergingChunkX,mergingChunkY,mergingChunkZ);
+            ArrayList<Object> mergingObjects = chunkz.surroundingObjects(mergingChunkX,mergingChunkY,mergingChunkZ,1);
+            float mergedRadius = 0;
+            boolean merge = false;
+            ArrayList<Object> mergedObjects = new ArrayList<Object>();
+            while(!merge){
+                mergedRadius += avgRadius/2;
+                boolean present = false;
+                for(int i = 0; i < mergingObjects.size(); i++) {
+                    if(mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() < mergedRadius && mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len()>= mergedRadius - (avgRadius/2)){
+                        present = true;
+                        mergedObjects.add(mergingObjects.get(i));
+                    }
+                }
+                if (!present) {
+                    merge = true;
+                    System.out.println("MERGE 2");
+                    System.out.println(mergedRadius);
+
+                }
+
+            }
+            float totalmass = 0;
+            Vector3 averageVelocity = new Vector3();
+            float avgRed = 0;
+            float avgBlue = 0;
+            float avgGreen = 0;
+            for (Object mergedObject : mergedObjects) {
+                mergedObject.setDelete(true);
+                totalmass += mergedObject.getMass();
+                averageVelocity.add(mergedObject.getVelocity());
+                avgRed += mergedObject.getR();
+                avgGreen += mergedObject.getG();
+                avgBlue += mergedObject.getB();
+            }
+            averageVelocity.scl((float) 1 /mergedObjects.size());
+            avgRed /= mergedObjects.size();
+            avgBlue /= mergedObjects.size();
+            avgGreen /= mergedObjects.size();
+            float collectiveDensity = (float) (totalmass/(Math.pow(mergedRadius,3) * Math.PI * ((double) 4 /3)));
+
+        Object collectiveObject = new Object(mergedRadius,collectiveDensity, mergingCentre.x,mergingCentre.y,mergingCentre.z,averageVelocity.x,averageVelocity.y,averageVelocity.z,modelBuilder,false,avgRed,avgBlue,avgGreen);
+        return collectiveObject;
+        }
+        return null;
+    }
     @Override
     public void render() {
         if (gamerunning) {
@@ -537,6 +597,16 @@ public class Main implements ApplicationListener {
                 //System.out.println(object.getMass());
 
             }
+
+            Object currentmergedobject = merge();
+            if(currentmergedobject != null) {
+                if (mergedObjectChunk == chunkz.chunkPosition(currentmergedobject)) {
+                    countmerge += 1;
+                } else {
+                    countmerge = 0;
+                    mergedObjectChunk = chunkz.chunkPosition(currentmergedobject);
+                }
+            }
             ArrayList<Object> blacklist = new ArrayList<>();
             for (int object = 0; object<objects.size();object++) {
                 if (objects.get(object).getDelete()) {
@@ -549,6 +619,11 @@ public class Main implements ApplicationListener {
                 objects.remove(blacklist.get(i));
             }
             blacklist.clear();
+            if (countmerge >= 100) {
+                objects.add(currentmergedobject);
+                currentmergedobject = null;
+            }
+
             //System.out.println(objects.get(0).getRadius());
             //System.out.println(objects.get(0).getDensity());
             //System.out.println(objects.size());
