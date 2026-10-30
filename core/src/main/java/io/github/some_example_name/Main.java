@@ -14,9 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.io.*;
@@ -64,6 +62,7 @@ public class Main implements ApplicationListener {
     PerspectiveCamera camera;
     Vector3 vertical;
     boolean locked;
+    boolean merging;
     ModelInstance sphereInstance;
     ModelBuilder modelBuilder;
     ModelBatch modelBatch;
@@ -111,6 +110,9 @@ public class Main implements ApplicationListener {
     boolean screenLoaded;
     int countmerge;
     Vector3 mergedObjectChunk;
+    float dTime;
+    long currenttime;
+    float timeSinceBreakdown;
 
     Label title;
     Button startGame;
@@ -120,6 +122,7 @@ public class Main implements ApplicationListener {
 
     boolean selected;
     Object selectedobject;
+    Object currentmergedobject;
     Vector3 selectedObjectPosition;
 
 
@@ -142,6 +145,9 @@ public class Main implements ApplicationListener {
         camera.update();
         vertical = new Vector3(0,1,0);
         boolean locked = false;
+        boolean merging = false;
+        dTime = 0;
+        currenttime = System.currentTimeMillis();
         modelBuilder = new ModelBuilder();        models = new ArrayList<Model>();
         environment = new Environment();
         environment.add(new PointLight().set(1f,1f,1f, new Vector3(0,0,0), 1f));
@@ -168,6 +174,7 @@ public class Main implements ApplicationListener {
         screenLoaded = false;
         countmerge = 0;
         mergedObjectChunk = new Vector3();
+        timeSinceBreakdown = -1;
 
         title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
         startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
@@ -500,6 +507,7 @@ public class Main implements ApplicationListener {
             object.refreshmodel(modelBuilder);
             System.out.println(object.getCollision());
         }
+        timeSinceBreakdown = -1;
         System.out.println("loaded with " + count + " objects");
 
     }
@@ -524,7 +532,7 @@ public class Main implements ApplicationListener {
         System.out.println("Saved!");
         bufferedWriter.close();
     }
-    public Object merge(){
+    public Object merge(boolean delete){
         for (Object object : objects) {
             chunkz.positionOnGrid(object);
         }
@@ -540,18 +548,21 @@ public class Main implements ApplicationListener {
             boolean merge = false;
             ArrayList<Object> mergedObjects = new ArrayList<Object>();
             while(!merge){
-                mergedRadius += avgRadius/2;
+                mergedRadius += avgRadius;
                 boolean present = false;
+                System.out.println(mergingObjects);
                 for(int i = 0; i < mergingObjects.size(); i++) {
-                    if(mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() < mergedRadius && mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len()>= mergedRadius - (avgRadius/2)){
+                    System.out.println(mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() - mergedRadius);
+                    if(mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() < mergedRadius && mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len()>= mergedRadius - (avgRadius)){
                         present = true;
                         mergedObjects.add(mergingObjects.get(i));
+                        System.out.println(mergedObjects);
                     }
                 }
                 if (!present) {
                     merge = true;
-                    System.out.println("MERGE 2");
-                    System.out.println(mergedRadius);
+                    //System.out.println("MERGE 2");
+                    //System.out.println(mergedRadius);
 
                 }
 
@@ -562,14 +573,17 @@ public class Main implements ApplicationListener {
             float avgBlue = 0;
             float avgGreen = 0;
             for (Object mergedObject : mergedObjects) {
-                mergedObject.setDelete(true);
+                mergedObject.setDelete(delete);
                 totalmass += mergedObject.getMass();
                 averageVelocity.add(mergedObject.getVelocity());
                 avgRed += mergedObject.getR();
                 avgGreen += mergedObject.getG();
                 avgBlue += mergedObject.getB();
             }
+            System.out.println("averageVelocity:" + averageVelocity);
+
             averageVelocity.scl((float) 1 /mergedObjects.size());
+            System.out.println("averageVelocity:" + averageVelocity);
             avgRed /= mergedObjects.size();
             avgBlue /= mergedObjects.size();
             avgGreen /= mergedObjects.size();
@@ -578,11 +592,18 @@ public class Main implements ApplicationListener {
         Object collectiveObject = new Object(mergedRadius,collectiveDensity, mergingCentre.x,mergingCentre.y,mergingCentre.z,averageVelocity.x,averageVelocity.y,averageVelocity.z,modelBuilder,false,avgRed,avgBlue,avgGreen);
         return collectiveObject;
         }
-        return null;
+        else {
+            return null;
+        }
     }
     @Override
     public void render() {
         if (gamerunning) {
+            dTime = (float) ( timeSpeed* (System.currentTimeMillis() - currenttime)) /1000;
+            currenttime = System.currentTimeMillis();
+            if(timeSinceBreakdown != -1){
+                timeSinceBreakdown+= dTime;
+            }
 
             //if(Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             forces.refreshArray(objects);
@@ -598,15 +619,17 @@ public class Main implements ApplicationListener {
 
             }
 
-            Object currentmergedobject = merge();
-            if(currentmergedobject != null) {
-                if (mergedObjectChunk == chunkz.chunkPosition(currentmergedobject)) {
-                    countmerge += 1;
-                } else {
-                    countmerge = 0;
-                    mergedObjectChunk = chunkz.chunkPosition(currentmergedobject);
-                }
+            //System.out.println(countmerge);
+
+            if(Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                merging = true;
+                currentmergedobject = merge(true);
+                currentmergedobject.outputProperties();
+                System.out.println("TRUE");
+                timeSinceBreakdown = -1;
             }
+
+
             ArrayList<Object> blacklist = new ArrayList<>();
             for (int object = 0; object<objects.size();object++) {
                 if (objects.get(object).getDelete()) {
@@ -619,10 +642,13 @@ public class Main implements ApplicationListener {
                 objects.remove(blacklist.get(i));
             }
             blacklist.clear();
-            if (countmerge >= 100) {
+            if(merging){
+                merging = false;
                 objects.add(currentmergedobject);
-                currentmergedobject = null;
+                System.out.println("MERGING");
+                timeSinceBreakdown = -1;
             }
+
 
             //System.out.println(objects.get(0).getRadius());
             //System.out.println(objects.get(0).getDensity());
@@ -647,7 +673,9 @@ public class Main implements ApplicationListener {
                     triggerBreakaway(objects, breakDownObjects.get(i));
                     breakDownObjects.get(i).setCollision(false);
                     breakDownObjects.get(i).setDelete(true);
+                    timeSinceBreakdown = 0;
                 }
+
             }
             //}
 

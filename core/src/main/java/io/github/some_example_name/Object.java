@@ -316,6 +316,20 @@ public class Object {
         //instance.transform.setToTranslation(location.cpy().sub(velocity.cpy().scl(0)));
         //modelBatch.render(instance);
     }
+    public void outputProperties(){
+        System.out.println("Radius:" + radius);
+        System.out.println("Density:" + density);
+        System.out.println("Mass:" + mass);
+        System.out.println("Location:" + location);
+        System.out.println("Velocity:" + velocity);
+        System.out.println("Force:" + resultantForce);
+        System.out.println("Acceleration:" + acceleration);
+        System.out.println("Category:" + category);
+        System.out.println("Breakaway:" + breakaway);
+        System.out.println("Red:" + r);
+        System.out.println("Green:" + g);
+        System.out.println("Blue:" + b);
+    }
 
 }
 
