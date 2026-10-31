@@ -97,6 +97,7 @@ public class Main implements ApplicationListener {
     //int amount;
     Breakdown breakdown;
     int chunksize;
+    int mergingreach;
     ChunkHandler chunkz;
     float timeSpeed;
     float previousspeed;
@@ -153,7 +154,8 @@ public class Main implements ApplicationListener {
         environment.add(new PointLight().set(1f,1f,1f, new Vector3(0,0,0), 1f));
         modelInstances = new ArrayList<ModelInstance>();
         trueSpeed = 1;
-        chunksize = 50;
+        chunksize = 5;
+        mergingreach = 5;
         Gdx.input.setInputProcessor(mouse);
         objects = new ArrayList<Object>();
         testballs = new ArrayList<Object>();
@@ -541,12 +543,13 @@ public class Main implements ApplicationListener {
         int mergingChunkY = (int) mergingChunk.y;
         int mergingChunkZ = (int) mergingChunk.z;
         if(chunkz.validToCombine(mergingChunkX, mergingChunkY, (int) mergingChunkZ,50)){
-            Vector3 mergingCentre = chunkz.centreOfVicinityBreakawayMass(mergingChunkX,mergingChunkY,mergingChunkZ,1);
+            Vector3 mergingCentre = chunkz.centreOfVicinityBreakawayMass(mergingChunkX,mergingChunkY,mergingChunkZ,mergingreach);
             float avgRadius = chunkz.averageBreakawayRadius(mergingChunkX,mergingChunkY,mergingChunkZ);
-            ArrayList<Object> mergingObjects = chunkz.surroundingObjects(mergingChunkX,mergingChunkY,mergingChunkZ,1);
+            ArrayList<Object> mergingObjects = chunkz.surroundingBreakawayObjects(mergingChunkX,mergingChunkY,mergingChunkZ,mergingreach);
             float mergedRadius = 0;
             boolean merge = false;
             ArrayList<Object> mergedObjects = new ArrayList<Object>();
+            /*
             while(!merge){
                 mergedRadius += avgRadius;
                 boolean present = false;
@@ -559,6 +562,7 @@ public class Main implements ApplicationListener {
                         System.out.println(mergedObjects);
                     }
                 }
+
                 if (!present) {
                     merge = true;
                     //System.out.println("MERGE 2");
@@ -567,6 +571,19 @@ public class Main implements ApplicationListener {
                 }
 
             }
+            */
+            for(int i = 0; i < mergingObjects.size(); i++) {
+                mergedRadius+=mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() * mergingObjects.get(i).getMass();
+            }
+            mergedRadius/=mergingObjects.size();
+            mergedRadius/= chunkz.averageBreakawayMass(mergingChunkX,mergingChunkY,mergingChunkZ);
+            //mergedRadius *= (2f/3f);
+            for(int i = 0; i < mergingObjects.size(); i++) {
+                if (mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() <= mergedRadius){
+                    mergedObjects.add(mergingObjects.get(i));
+                }
+            }
+
             float totalmass = 0;
             Vector3 averageVelocity = new Vector3();
             float avgRed = 0;
@@ -624,7 +641,7 @@ public class Main implements ApplicationListener {
             if(Gdx.input.isKeyJustPressed(Input.Keys.M)) {
                 merging = true;
                 currentmergedobject = merge(true);
-                currentmergedobject.outputProperties();
+
                 System.out.println("TRUE");
                 timeSinceBreakdown = -1;
             }
@@ -642,9 +659,10 @@ public class Main implements ApplicationListener {
                 objects.remove(blacklist.get(i));
             }
             blacklist.clear();
-            if(merging){
+            if(merging && currentmergedobject != null){
                 merging = false;
                 objects.add(currentmergedobject);
+                currentmergedobject.outputProperties();
                 System.out.println("MERGING");
                 timeSinceBreakdown = -1;
             }

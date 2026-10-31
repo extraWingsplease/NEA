@@ -59,7 +59,7 @@ public class ChunkHandler {
         return new Vector3(chunkX,chunkY,chunkZ);
     }
 
-    public ArrayList<Object> surroundingObjects(int chunkX, int chunkY, int chunkZ, int reach){
+    public ArrayList<Object> surroundingBreakawayObjects(int chunkX, int chunkY, int chunkZ, int reach){
         ArrayList<Object> vicinity = new ArrayList<>();
         for (int x = -reach; x <= reach; x++) {
             for (int y = -reach; y <= reach; y++) {
@@ -69,7 +69,11 @@ public class ChunkHandler {
                         ((long) chunkZ+z & 0x1FFFFF);
                     ArrayList<Object> cellObjects = grid.get(longKey);
                     if(cellObjects != null){
-                        vicinity.addAll(cellObjects);
+                        for(int i = 0; i < cellObjects.size(); i ++){
+                            if(cellObjects.get(i).getBreakaway()) {
+                                vicinity.add(cellObjects.get(i));
+                            }
+                        }
                     }
                 }
             }
