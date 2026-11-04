@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -41,6 +42,8 @@ RIGHT ARROW - speed up simulation time
 LEFT ARROW - slow down simulation time
 P - pause/unpause time
 
+M - trigger a merge
+
 UP ARROW - increase FOV
 DOWN ARROW - decrease FOV
 
@@ -61,6 +64,8 @@ public class Main implements ApplicationListener {
     ShapeRenderer shaper;
     PerspectiveCamera camera;
     Vector3 vertical;
+    Vector3 horizontal;
+    Vector3 depth;
     boolean locked;
     boolean merging;
     ModelInstance sphereInstance;
@@ -120,6 +125,7 @@ public class Main implements ApplicationListener {
     Slider testSlider1;
     Slider testSlider2;
 
+    ArrayList<Vector2> spread;
 
     boolean selected;
     Object selectedobject;
@@ -145,6 +151,8 @@ public class Main implements ApplicationListener {
         camera.far = 100000000f;
         camera.update();
         vertical = new Vector3(0,1,0);
+        horizontal = new Vector3(1,0,0);
+        depth = new Vector3(0,0,1);
         boolean locked = false;
         boolean merging = false;
         dTime = 0;
@@ -178,10 +186,12 @@ public class Main implements ApplicationListener {
         mergedObjectChunk = new Vector3();
         timeSinceBreakdown = -1;
 
+        spread = new ArrayList<Vector2>();
+
         title = new Label("Label.png", (float) Gdx.graphics.getWidth() /2 - 300, (float) Gdx.graphics.getHeight() /2 + 200, 600, 150);
         startGame = new Button("InactiveButton.png", "ActiveButton.png", (float) Gdx.graphics.getWidth() /2-50, (float) Gdx.graphics.getHeight() /2-25, 100, 50);
-        testSlider1 = new Slider("Label.png","Label.png", 0, 0, 1000, 100, 0, 0, 10, 0.1f);
-        testSlider2 = new Slider("Label.png","Label.png", 100, 0, 1000, 100, 90, 0, 10, 0.1f);
+        testSlider1 = new Slider("InactiveButton.png","Ambient model test.png", 0, 0, 2000, 30, 0, 0, 10, 0.1f);
+        testSlider2 = new Slider("InactiveButton.png","Ambient model test.png", 100, 0, 1000, 30, 90, 0, 10, 0.1f);
 
 
 

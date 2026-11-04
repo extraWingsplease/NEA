@@ -57,7 +57,7 @@ public class ForceHandler {
                     v.newForce(gravitation);
                     a.newForce(gravitation.scl(-1));
                 }
-                else if(Math.pow(magnitude,2) <= Math.pow(a.getRadius(),2)){
+                else if(Math.pow(magnitude,2) <= Math.pow(a.getRadius(),2)&& Math.pow(magnitude,2) >= Math.pow(a.getRadius(),2) * 0.25f){
                     Vector3 surfaceGravitation = distance.cpy().nor().scl((float) (-0.0000006743 * (a.getMass() * v.getMass() ) / Math.pow(a.getRadius(), 2)));
                     Vector3 gravitation = surfaceGravitation.cpy().scl((distance.cpy().len()/a.getRadius()));
                     v.newForce(gravitation);

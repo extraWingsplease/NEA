@@ -118,7 +118,7 @@ public class Slider {
         barSprite.setRotation(rotationDeg);
         rotationRad = (float) (rotationDeg * 2 * Math.PI)/360;
         barSprite.setSize(width,height);
-        wedgeSprite.setPosition((float) ((float) (sliderPosition.x + (width*relativeWedgePosition*Math.cos(rotationRad))) -((height/2) * Math.cos(rotationRad))+ ((height)/2 * Math.sin(rotationRad))), (float) (sliderPosition.y + (width*relativeWedgePosition*Math.sin(rotationRad)) - ((height)/2 * Math.cos(rotationRad))- ((height)/2 * Math.sin(rotationRad))));
+        wedgeSprite.setPosition((float) ((float) (sliderPosition.x + (width*relativeWedgePosition*Math.cos(rotationRad))) -((height/2) * Math.cos(rotationRad))+ ((height)/2 * Math.sin(rotationRad))), (float) (sliderPosition.y + (width*relativeWedgePosition*Math.sin(rotationRad)) - ((height)/2 * Math.cos(rotationRad))+ ((height)/2 * Math.sin(rotationRad))));
         wedgeSprite.setOrigin(barSprite.getX(),barSprite.getY());
         wedgeSprite.setRotation(rotationDeg);
         //System.out.println(wedgeSprite.getX()+ " " + wedgeSprite.getY());
