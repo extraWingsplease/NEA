@@ -346,7 +346,7 @@ public class Main implements ApplicationListener {
                 camera.fieldOfView -= 1;
             }
         }
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && locked) {
             if (selected) {
                 selected = false;
             } else {
@@ -377,7 +377,7 @@ public class Main implements ApplicationListener {
                 }
             }
         }
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)&& locked) {
             ArrayList<Float> distances = new ArrayList<Float>();
             boolean end = false;
             for (Object object : objects) {
@@ -552,7 +552,8 @@ public class Main implements ApplicationListener {
         int mergingChunkX = (int) mergingChunk.x;
         int mergingChunkY = (int) mergingChunk.y;
         int mergingChunkZ = (int) mergingChunk.z;
-        if(chunkz.validToCombine(mergingChunkX, mergingChunkY, (int) mergingChunkZ,50)){
+        if(chunkz.validToCombine(mergingChunkX, mergingChunkY, (int) mergingChunkZ,2)){
+            spread.clear();
             Vector3 mergingCentre = chunkz.centreOfVicinityBreakawayMass(mergingChunkX,mergingChunkY,mergingChunkZ,mergingreach);
             float avgRadius = chunkz.averageBreakawayRadius(mergingChunkX,mergingChunkY,mergingChunkZ);
             ArrayList<Object> mergingObjects = chunkz.surroundingBreakawayObjects(mergingChunkX,mergingChunkY,mergingChunkZ,mergingreach);
@@ -587,7 +588,7 @@ public class Main implements ApplicationListener {
             }
             mergedRadius/=mergingObjects.size();
             mergedRadius/= chunkz.averageBreakawayMass(mergingChunkX,mergingChunkY,mergingChunkZ);
-            //mergedRadius *= (2f/3f);
+            mergedRadius *= (6f/3f);
             for(int i = 0; i < mergingObjects.size(); i++) {
                 if (mergingObjects.get(i).getLocation().cpy().sub(mergingCentre).len() <= mergedRadius){
                     mergedObjects.add(mergingObjects.get(i));
@@ -600,13 +601,19 @@ public class Main implements ApplicationListener {
             float avgBlue = 0;
             float avgGreen = 0;
             for (Object mergedObject : mergedObjects) {
-                mergedObject.setDelete(delete);
+                //mergedObject.setDelete(delete);
+                Vector3 directionToCentre = mergingCentre.cpy().sub(mergedObject.getLocation());
+                Vector3 flatDirectionToCentre = new Vector3(directionToCentre.x,0,directionToCentre.y);
+                float alpha = (float) Math.acos(horizontal.dot(flatDirectionToCentre)/(horizontal.len() * flatDirectionToCentre.len()));
+                float theta = (float) Math.acos(vertical.dot(directionToCentre)/(vertical.len() * directionToCentre.len()));
+                spread.add(new Vector2(alpha, theta));
                 totalmass += mergedObject.getMass();
                 averageVelocity.add(mergedObject.getVelocity());
                 avgRed += mergedObject.getR();
                 avgGreen += mergedObject.getG();
                 avgBlue += mergedObject.getB();
             }
+            System.out.println(spread);
             System.out.println("averageVelocity:" + averageVelocity);
 
             averageVelocity.scl((float) 1 /mergedObjects.size());
@@ -648,7 +655,7 @@ public class Main implements ApplicationListener {
 
             //System.out.println(countmerge);
 
-            if(Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            if(Gdx.input.isKeyPressed(Input.Keys.M)) {
                 merging = true;
                 currentmergedobject = merge(true);
 
@@ -671,8 +678,8 @@ public class Main implements ApplicationListener {
             blacklist.clear();
             if(merging && currentmergedobject != null){
                 merging = false;
-                objects.add(currentmergedobject);
-                currentmergedobject.outputProperties();
+                //objects.add(currentmergedobject);
+                //currentmergedobject.outputProperties();
                 System.out.println("MERGING");
                 timeSinceBreakdown = -1;
             }
@@ -825,6 +832,13 @@ public class Main implements ApplicationListener {
                 shaper.setColor(1, 1, 1, 1);
                 shaper.circle((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2, 2);
             }
+
+            shaper.setColor(1, 1, 1, 1);
+            for(int i =0; i < spread.size(); i++){
+                shaper.circle(spread.get(i).x * 50,spread.get(i).y * 50,2);
+                System.out.println(spread.get(i));
+            }
+
 
 
         }
